@@ -28,7 +28,15 @@ Passed JavaScript syntax checks and DOM integration tests using the actual workb
 - Broken link handling and user prompt verified: when server returns 404, the dashboard catches the failure, displays a clear notification, and renders a prominent "📁 Choose CT Defects-1.xlsx" button to pick the file.
 - Client-side IndexedDB persistence (`CTDefectDB`) verified: stores the full 6,030,443-byte workbook and automatically restores all data offline or when server links are unavailable.
 - Browser `file://` protocol compatibility verified: handles local file system security restrictions gracefully and prompts for file selection.
-- Shift Analysis verified on actual local data (14,627 records): Shift A (06:00–14:00) = 4,961 records; Shift B (14:00–22:00) = 4,846 records; Shift C (22:00–06:00) = 4,820 records; dynamic Shift slicer and cross-filtering tested with 100% data fidelity.
+- Shift categorization verified on actual local data (14,627 records): Shift A (06:00–14:00) = 4,961 records; Shift B (14:00–22:00) = 4,846 records; Shift C (22:00–06:00) = 4,820 records.
+- Production Shift removal from analytics & retention in table verified per user request:
+  - Slicer panel displays only Year and Month tile slicers (Production Shift completely removed).
+  - Root Cause Assistant contains no Shift tile or shift takeaway references.
+  - Defect records table displays a dedicated `Shift` column (17 total columns: `Date`, `Shift`, `Barcode`, `Defect Name`, `Defect Spotting`, `Defect Location`, `Defect Area`, `Defect Group`, `Defect Resp`, `TBMDate`, `TBMTime`, `TBMMachine ID`, `TBM GT Code`, `Curing Tyre Size`, `Curing Date`, `Curing Time`, `Curing Machine ID`).
+  - Interactive table column sorting on `Shift` verified (ascending orders Shift A first, descending orders Shift C first).
+  - Row details dialog includes `Shift` and its specific record value.
+  - CSV and Excel exports verified with `Shift` column header and populated data.
+  - Zero production volume or denominator involvement; 100% defect-centric quality intelligence.
 - Pareto 80/20 Dual-Axis Analysis verified: primary y-axis (Defect records bar) + secondary y1-axis (Cumulative % line starting at 21.7% and reaching 100%) with dashed 80% threshold line; active by default on Defect-wise count and selectable on Defect groups and Tyre Size.
 - Polar Clock Radial View verified: Defect Spotting renders 0°–360° tire circumference angular positions on radial polarArea chart with radial scale `r: { beginAtZero: true }`.
 - Executive Print Layout verified: `#printReport` triggers browser print with `@media print` rules hiding navigation and controls for a pristine 2-column quality summary.

@@ -25,9 +25,9 @@ No backend, database, or build step is required. Internet access is only needed 
 
 - `index.html`: application shell, PWA metadata, and layout.
 - `styles.css`: clean manufacturing interface styling.
-- `enhancements.css`: tile slicers (Year, Month, Shift), quality badge, and `@media print` executive styling.
-- `engine.js`: date normalization, uniqueness enforcement, shift categorization (`Shift A: 06-14`, `Shift B: 14-22`, `Shift C: 22-06`), filtering, aggregation, and export utilities.
-- `app.js`: client-side Excel ingestion, Chart.js rendering (Pareto dual-axis, Polar Clock radial area, single-dimension bars/lines), slicer controls, and offline IndexedDB cache management.
+- `enhancements.css`: tile slicers (Year, Month), quality badge, and `@media print` executive styling.
+- `engine.js`: date normalization, uniqueness enforcement, shift categorization (`Shift A: 06-14`, `Shift B: 14-22`, `Shift C: 22-06` for data reporting), filtering, aggregation, and export utilities.
+- `app.js`: client-side Excel ingestion, Chart.js rendering (Pareto dual-axis, Polar Clock radial area, single-dimension bars/lines), slicer controls, 17-column data table with Shift, and offline IndexedDB cache management.
 - `manifest.json`: Web App Manifest for Progressive Web App (PWA) installation.
 - `icon.svg`: vector tire crosshair quality icon.
 - `sw.js`: Service Worker providing offline caching for application shell and CDN dependencies.
@@ -42,11 +42,7 @@ No backend, database, or build step is required. Internet access is only needed 
 
 ### 1. Dynamic Tile Slicers
 - **Year & Month Slicers**: Visual tile slicers with real-time record counts driven by the Excel `Date` column (column 2; fallback: `Xray Date`).
-- **Shift Analysis Slicer**: Automatically categorizes records into manufacturing shifts based on `TBMTime` and `Curing Time`:
-  - **Shift A (06:00 – 14:00)**: 4,961 records
-  - **Shift B (14:00 – 22:00)**: 4,846 records
-  - **Shift C (22:00 – 06:00)**: 4,820 records
-  Click any shift tile to instantly filter the entire dashboard by shift.
+- **Separated Shift Scope**: Production Shift is preserved exclusively in the Defect records table and data exports (not in slicer filters or chart analytics), ensuring analytics remain focused on machinery, tyre sizes, and defect topology.
 
 ### 2. Pareto 80/20 Rule Analysis
 - Dual-axis chart with **Bar (Defect Count)** on the primary axis (y) and **Line (Cumulative %)** on the secondary axis (y1) reaching 100%.
@@ -64,7 +60,7 @@ No backend, database, or build step is required. Internet access is only needed 
 
 ### 5. Automated Root Cause Intelligence Assistant
 - Multi-dimensional diagnostic assistant for any selected defect (or overall leading defect).
-- Automatically attributes defect concentrations across **Curing Machines**, **TBM Machines**, **Production Shifts**, **Tyre Sizes**, and **Physical Circumference Angles**.
+- Automatically attributes defect concentrations across **Curing Machines**, **TBM Machines**, **Tyre Sizes**, and **Physical Circumference Angles**.
 - Displays interactive diagnostic tiles with 1-click drill-down filtering and human-readable diagnostic synthesis takeaways.
 
 ### 6. Interactive Tire Anatomical Cross-Section Map
@@ -85,6 +81,12 @@ No backend, database, or build step is required. Internet access is only needed 
 ### 9. Control Room Dark Mode & Quality Target Setting
 - High-contrast **🌙 Dark Mode / ☀️ Light Mode** toggle tailored for factory control rooms, test labs, and dark plant floors.
 - **Custom Daily Defect Target Setting**: Set factory defect thresholds (e.g. Target $\le 50$ defects/day) with live dynamic comparison badges (`✓ Within Target` vs `⚠️ Exceeding Target`).
+
+### 10. Defect Records Table & Data Exports
+- Displays all matching defect records with **17 columns** including a dedicated **Shift** column (`Shift A (06-14)`, `Shift B (14-22)`, `Shift C (22-06)`).
+- Full interactive sorting on all headers including Shift.
+- Row inspection modal displaying full record metadata including Shift.
+- Full CSV and Excel exports including Shift column.
 
 ### 10. Executive Print / PDF Quality Brief
 - Click the **⎙ Print Brief** button in the header (or press `Ctrl+P`) to generate an executive-ready 2-column quality summary.
