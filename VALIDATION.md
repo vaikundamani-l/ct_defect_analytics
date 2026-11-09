@@ -48,6 +48,23 @@ Passed JavaScript syntax checks and DOM integration tests using the actual workb
 - Machine × Defect Correlation Heatmap Matrix verified on Machine Analysis workspace: generates cross-tabulation of machinery vs top defect types with gradient color scaling and dual-axis cell filtering.
 - Product / SKU Quality Profiling verified: dedicated SKU & Specification workspace featuring Tyre Size Pareto (`Curing Tyre Size`) and Green Tyre Code breakdown (`TBM GT Code`).
 - Control Room Dark Mode & Daily Defect Target Setting verified: high-contrast dark theme toggle (`data-theme="dark"`) with local storage persistence and configurable daily defect count threshold badge.
+- Comprehensive Advanced Quality Suite verified on local 14,627 records:
+  - KPI Trend Badges (Period-over-Period % change) verified: renders dynamic ↑/↓ badges comparing current period against previous.
+  - Automated Quality Period Summary verified: synthesizes key events, top defects, and SPC stability highlights.
+  - Repeat Offender Machine Detection verified: flags machinery exceeding average concentration with CRITICAL/WARNING/WATCH badges.
+  - Machine Health Scoring verified: composite quality score (0–100) and letter grades (A–F) with trend indicators.
+  - Pareto Progress Tracker verified: tracks vital-few top 5 defect trajectories across periods.
+  - Factory Quality Scorecard verified: composite index combining Machine Spread Entropy, Defect Diversity Focus, and Process Stability.
+  - Cumulative Defect Tracker verified: running cumulative defect total vs target curves.
+  - Defect Velocity & Acceleration Chart verified: first and second derivative of defect counts over time.
+  - Defect → Machine Flow (Sankey Diagram) verified: SVG flow paths connecting defect types to production machinery.
+  - Saved Filter Presets verified: save, apply, and delete filter presets in browser local storage.
+  - Multi-File Merge verified: simultaneous ingestion and cross-file uniqueness deduplication.
+  - Table Column Visibility Toggle verified: toggle any of 17 columns with persistent local storage state.
+  - Defect Recurrence Tracking verified: detects barcodes appearing with the same defect across multiple dates.
+  - Conditional Row Severity Highlighting verified: visual severity color coding in defect records table.
+  - Shift Column Strict Isolation verified: 100% retained in defect records table and exports; completely excluded from slicers/analytics.
+  - 100% Client-Side Architecture verified: zero cost/financial modules, zero production denominators, zero server communication.
 
 Verified using headless Google Chrome with live Canvas rendering, real SheetJS parsing of CT Defects-1.xlsx, DOM interaction tests, and visual screenshot capture.
 

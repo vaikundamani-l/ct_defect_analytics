@@ -87,16 +87,58 @@ No backend, database, or build step is required. Internet access is only needed 
 - Full interactive sorting on all headers including Shift.
 - Row inspection modal displaying full record metadata including Shift.
 - Full CSV and Excel exports including Shift column.
+- **Defect Recurrence Badges**: Recurring barcode defects are visually tagged with `🔁 2x` recurrence badges.
+- **Conditional Row Highlighting**: Color-codes rows based on severity (top 3 critical defects in red, recurring defects in amber).
+- **Column Visibility Toggle**: Show/hide any of the 17 columns with state saved to `localStorage`.
 
-### 10. Executive Print / PDF Quality Brief
+### 11. KPI Trend Badges (Period-over-Period % Change)
+- Real-time month-over-month or period-over-period trend badges on primary KPI cards (`Total Defect Records`, `Unique Barcodes`, `Defect Names`).
+- Dynamic directional indicators (`↑` increase in red, `↓` decrease in green, `→` flat in neutral).
+
+### 12. Automated Quality Period Summary
+- Automatically synthesized text narrative highlighting leading defect types, machine concentrations, and SPC process stability events for the active date filter.
+
+### 13. Repeat Offender Machine Detection
+- Intelligent statistical detection identifying machinery that consistently produces specific defect types above plant average.
+- Categorizes concentration risk levels (`CRITICAL`, `WARNING`, `WATCH`) with 1-click drilldown isolation.
+
+### 14. Machine Health Scorecards & Grading (A–F)
+- Composite 0–100 health scoring per machine incorporating defect frequency (40%), defect variety (30%), and historical trend (30%).
+- Assigns letter grades (`Grade A` to `Grade F`) and trend indicators (`📈 Improving`, `📉 Worsening`, `➡️ Stable`). Switchable between TBM and Curing machinery.
+
+### 15. Pareto Progress Tracker
+- Tracks month-over-month performance of the historical "vital few" top 5 defect categories to verify whether corrective actions actually reduced defects.
+
+### 16. Factory Quality Scorecard (Composite Index)
+- Single composite quality metric (0–100) combining **Machine Spread Entropy** (35%), **Defect Diversity Focus** (35%), and **SPC Process Stability** (30%) with visual progress bars.
+
+### 17. Cumulative Defect Tracker & Target Curve
+- Running cumulative defect chart comparing actual defect accumulation against custom factory targets over the period.
+
+### 18. Defect Velocity & Acceleration Analysis
+- Tracks the velocity (period-over-period change rate) and acceleration (second derivative) to detect whether quality issues are accelerating or decelerating.
+
+### 19. Defect → Machine Flow (Sankey Diagram)
+- Interactive flow diagram on the **Machine Analysis** workspace mapping defect types to originating machines with flow-width proportional to defect volume.
+
+### 20. Saved Filter Presets & Bookmarks
+- Save named filter configurations to browser local storage for instant 1-click recall of frequent investigation filters.
+
+### 21. Multi-File Excel Merge
+- Merge multiple Excel workbooks simultaneously via the `⊕ Merge Files` action, automatically deduplicating records across all files upon ingestion.
+
+### 22. Data Annotations & Notes
+- Attach persistent engineer notes and quality memos to specific barcodes/records, stored locally in IndexedDB/localStorage.
+
+### 23. Executive Print / PDF Quality Brief
 - Click the **⎙ Print Brief** button in the header (or press `Ctrl+P`) to generate an executive-ready 2-column quality summary.
 - Print stylesheets (`@media print`) hide navigation sidebars, controls, and pagination, producing an immaculate physical or PDF briefing.
 
-### 11. PWA & Offline Installation
+### 24. PWA & Offline Installation
 - Fully installable as a standalone desktop application via Chrome/Edge ("Install App").
 - Powered by `sw.js` Service Worker and IndexedDB (`CTDefectDB`), enabling 100% offline usage with zero internet dependency once loaded.
 
-### 12. Automated GitHub Pages CI/CD
+### 25. Automated GitHub Pages CI/CD
 - GitHub Actions workflow (`.github/workflows/deploy.yml`) automatically builds and deploys the dashboard to GitHub Pages on every push to `main`.
 
 ### Unified Workspaces & Navigation

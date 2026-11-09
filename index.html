@@ -1,1 +1,363 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101f36"><title>CT Defect Analytics</title><link rel="manifest" href="manifest.json"><link rel="icon" type="image/svg+xml" href="icon.svg"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="enhancements.css"><script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script><script defer src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script><script defer src="engine.js"></script><script defer src="app.js"></script></head><body><aside id="sidebar"><div class="brand"><b>CT<span> ◧</span></b><small>QUALITY INTELLIGENCE</small></div><p class="nav-label">WORKSPACE</p><nav id="nav"></nav><div class="side-footer"><span class="live-dot"></span> Browser-local processing<small>Your workbook stays on this device.</small></div></aside><main><header><div class="heading"><button id="collapse" aria-label="Toggle sidebar">☰</button><div><h1>CT Defect Analytics</h1><p id="source">Manufacturing quality · No workbook loaded</p></div></div><div class="actions"><div class="target-control" title="Set daily defect count threshold"><label for="targetDefects">🎯 Target/day:</label><input id="targetDefects" type="number" min="1" max="5000" value="50"><span id="targetBadge" class="target-badge">Within Target</span></div><button id="themeToggle" title="Toggle Light / Dark Mode">🌙 Dark</button><button id="printReport" title="Print Executive Quality Brief or save as PDF">⎙ Print Brief</button><button id="reset">↺ Reset filters</button><label class="primary upload">↑ Upload Excel<input id="upload" type="file" accept=".xlsx,.xls" hidden></label></div></header><div id="status" role="status" aria-live="polite"></div><section class="filter-panel"><div class="section-top"><strong>Report filters</strong><span>TBMDate is the primary analysis date</span><button id="clearCharts">Clear chart selections</button></div><div id="slicers"></div><div id="chips"></div></section><div class="page-heading"><div><p class="eyebrow">MANUFACTURING / QUALITY CONTROL</p><h2 id="pageTitle">Dashboard Overview</h2></div><span id="filteredCount" class="pill">Awaiting workbook</span></div><section id="kpis"></section><section id="quality"></section><section id="welcome" class="empty card"><div class="file-symbol">▥</div><h2>Your quality data. A clearer perspective.</h2><p>Open CT Defects-1.xlsx (or any Excel file with the same columns) to explore defects, machines and responsibility.<br>Only the 16 specified fields in DefectReport are read. No sample data is used.</p><div id="welcomeNotice"></div><label class="primary upload">Choose workbook<input type="file" class="welcome-upload" accept=".xlsx,.xls" hidden></label><p class="muted">Internet is required to load Chart.js and SheetJS. Data processing stays in your browser.</p></section><section id="summary"></section><section id="advancedVisuals" hidden><div class="adv-grid"><article id="rootCauseCard" class="card adv-card"><div class="chart-head"><div><h3>🔍 Root Cause Intelligence Assistant</h3><p>Multi-dimensional diagnostic driver analysis for selected defect</p></div><div class="chart-tools"><select id="rootCauseSelect" aria-label="Select defect to analyze"></select></div></div><div id="rootCauseBody" class="root-cause-content"></div></article><article id="tireDiagramCard" class="card adv-card"><div class="chart-head"><div><h3>🎯 Tire Anatomical Cross-Section Map</h3><p>Defect density heatmap across physical tire zones (Click to filter)</p></div></div><div id="tireDiagramBody" class="tire-diagram-content"></div></article></div></section><section id="heatmapSection" hidden><article class="card chart-card wide" id="card-heatmap"><div class="chart-head"><div><h3>Machine × Defect Correlation Heatmap Matrix</h3><p>Defect record concentrations across production machinery (Click any cell to filter)</p></div><div class="chart-tools"><select id="heatmapMachineType" aria-label="Heatmap machine selection"><option value="TBMMachine ID">TBM Machine ID</option><option value="Curing Machine ID">Curing Machine ID</option></select></div></div><div class="chart-scroll"><div id="heatmapTableWrap"></div></div></article></section><section id="charts"></section><section id="explorer" class="card" hidden><div class="table-toolbar"><div><h3>Defect records</h3><p id="tableCount"></p></div><input id="search" placeholder="Search all 16 fields…" aria-label="Search records"><select id="pageSize" aria-label="Rows per page"><option>25</option><option>50</option><option>100</option><option>250</option></select><button id="csv">Export CSV</button><button id="excel">Export Excel</button></div><div class="table-scroll"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div><div class="pagination"><button id="prev">← Previous</button><span id="pageInfo"></span><button id="next">Next →</button></div></section><footer>CT / Quality intelligence <span>Counts represent defect records, not production defect rates.</span></footer></main><dialog id="detail"><div class="section-top"><h2>Record details</h2><button id="closeDetail">Close ✕</button></div><dl id="detailFields"></dl></dialog></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101f36">
+  <title>CT Defect Analytics</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="enhancements.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <script defer src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script defer src="engine.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+
+  <!-- ===== Sidebar ===== -->
+  <aside id="sidebar">
+    <div class="brand">
+      <b>CT<span> ◧</span></b>
+      <small>QUALITY INTELLIGENCE</small>
+    </div>
+    <p class="nav-label">WORKSPACE</p>
+    <nav id="nav"></nav>
+    <div class="side-footer">
+      <span class="live-dot"></span> Browser-local processing
+      <small>Your workbook stays on this device.</small>
+    </div>
+  </aside>
+
+  <!-- ===== Main Content ===== -->
+  <main>
+
+    <!-- Header -->
+    <header>
+      <div class="heading">
+        <button id="collapse" aria-label="Toggle sidebar">☰</button>
+        <div>
+          <h1>CT Defect Analytics</h1>
+          <p id="source">Manufacturing quality · No workbook loaded</p>
+        </div>
+      </div>
+      <div class="actions">
+        <div class="target-control" title="Set daily defect count threshold">
+          <label for="targetDefects">🎯 Target/day:</label>
+          <input id="targetDefects" type="number" min="1" max="5000" value="50">
+          <span id="targetBadge" class="target-badge">Within Target</span>
+        </div>
+        <button id="savedFilters" title="Manage saved filter presets">📑 Presets</button>
+        <button id="themeToggle" title="Toggle Light / Dark Mode">🌙 Dark</button>
+        <button id="printReport" title="Print Executive Quality Brief or save as PDF">⎙ Print Brief</button>
+        <button id="reset">↺ Reset filters</button>
+        <label class="primary upload">↑ Upload Excel<input id="upload" type="file" accept=".xlsx,.xls" hidden></label>
+        <!-- Multi-file merge upload -->
+        <label class="upload" title="Upload and merge multiple Excel files">
+          ⊕ Merge Files<input id="mergeUpload" type="file" accept=".xlsx,.xls" multiple hidden>
+        </label>
+      </div>
+    </header>
+
+    <!-- Status Bar -->
+    <div id="status" role="status" aria-live="polite"></div>
+
+    <!-- Filter Panel -->
+    <section class="filter-panel">
+      <div class="section-top">
+        <strong>Report filters</strong>
+        <span>TBMDate is the primary analysis date</span>
+        <button id="clearCharts">Clear chart selections</button>
+      </div>
+      <div id="slicers"></div>
+      <div id="chips"></div>
+    </section>
+
+    <!-- Page Heading -->
+    <div class="page-heading">
+      <div>
+        <p class="eyebrow">MANUFACTURING / QUALITY CONTROL</p>
+        <h2 id="pageTitle">Dashboard Overview</h2>
+      </div>
+      <span id="filteredCount" class="pill">Awaiting workbook</span>
+    </div>
+
+    <!-- KPIs -->
+    <section id="kpis"></section>
+
+    <!-- Quality Summary -->
+    <section id="quality"></section>
+
+    <!-- Welcome Screen -->
+    <section id="welcome" class="empty card">
+      <div class="file-symbol">▥</div>
+      <h2>Your quality data. A clearer perspective.</h2>
+      <p>
+        Open CT Defects-1.xlsx (or any Excel file with the same columns) to explore defects, machines and responsibility.<br>
+        Only the 16 specified fields in DefectReport are read. No sample data is used.
+      </p>
+      <div id="welcomeNotice"></div>
+      <label class="primary upload">Choose workbook<input type="file" class="welcome-upload" accept=".xlsx,.xls" hidden></label>
+      <p class="muted">Internet is required to load Chart.js and SheetJS. Data processing stays in your browser.</p>
+    </section>
+
+    <!-- Summary Section -->
+    <section id="summary"></section>
+
+    <!-- Trend Badges are shown inside KPI cards via JS, no new section needed -->
+
+    <!-- Saved Filter Presets Dialog -->
+    <dialog id="presetsDialog">
+      <div class="section-top">
+        <h2>📑 Saved Filter Presets</h2>
+        <button id="closePresets">Close ✕</button>
+      </div>
+      <div class="presets-content">
+        <div class="preset-save-form">
+          <input id="presetName" type="text" placeholder="Name this filter preset..." maxlength="50">
+          <button id="savePreset" class="primary">💾 Save Current</button>
+        </div>
+        <div id="presetsList" class="presets-list"></div>
+      </div>
+    </dialog>
+
+    <!-- Weekly Summary Section (Dashboard Overview page 0) -->
+    <section id="weeklySummarySection" hidden>
+      <article class="card">
+        <div class="chart-head">
+          <div>
+            <h3>📋 Quality Period Summary</h3>
+            <p>Auto-generated key findings and highlights for the selected filters</p>
+          </div>
+        </div>
+        <div id="weeklySummaryBody" class="weekly-summary-content"></div>
+      </article>
+    </section>
+
+    <!-- Advanced Visuals -->
+    <section id="advancedVisuals" hidden>
+      <div class="adv-grid">
+        <article id="rootCauseCard" class="card adv-card">
+          <div class="chart-head">
+            <div>
+              <h3>🔍 Root Cause Intelligence Assistant</h3>
+              <p>Multi-dimensional diagnostic driver analysis for selected defect</p>
+            </div>
+            <div class="chart-tools">
+              <select id="rootCauseSelect" aria-label="Select defect to analyze"></select>
+            </div>
+          </div>
+          <div id="rootCauseBody" class="root-cause-content"></div>
+        </article>
+        <article id="tireDiagramCard" class="card adv-card">
+          <div class="chart-head">
+            <div>
+              <h3>🎯 Tire Anatomical Cross-Section Map</h3>
+              <p>Defect density heatmap across physical tire zones (Click to filter)</p>
+            </div>
+          </div>
+          <div id="tireDiagramBody" class="tire-diagram-content"></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Repeat Offender & Machine Health Section (Dashboard Overview page 0) -->
+    <section id="machineIntelSection" hidden>
+      <div class="adv-grid">
+        <article class="card adv-card">
+          <div class="chart-head">
+            <div>
+              <h3>🔴 Repeat Offender Machines</h3>
+              <p>Machines consistently producing the same defect above average</p>
+            </div>
+          </div>
+          <div id="repeatOffenderBody"></div>
+        </article>
+        <article class="card adv-card">
+          <div class="chart-head">
+            <div>
+              <h3>🏥 Machine Health Scores</h3>
+              <p>Composite quality score per machine (frequency, variety, trend)</p>
+            </div>
+            <div class="chart-tools">
+              <select id="healthMachineType" aria-label="Machine type for health scores">
+                <option value="TBMMachine ID">TBM Machine</option>
+                <option value="Curing Machine ID">Curing Machine</option>
+              </select>
+            </div>
+          </div>
+          <div id="machineHealthBody"></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Pareto Progress Section (Dashboard Overview page 0) -->
+    <section id="paretoProgressSection" hidden>
+      <article class="card">
+        <div class="chart-head">
+          <div>
+            <h3>📊 Pareto Progress Tracker</h3>
+            <p>Are the "vital few" defects from last period improving?</p>
+          </div>
+        </div>
+        <div id="paretoProgressBody"></div>
+      </article>
+    </section>
+
+    <!-- Heatmap Section -->
+    <section id="heatmapSection" hidden>
+      <article class="card chart-card wide" id="card-heatmap">
+        <div class="chart-head">
+          <div>
+            <h3>Machine × Defect Correlation Heatmap Matrix</h3>
+            <p>Defect record concentrations across production machinery (Click any cell to filter)</p>
+          </div>
+          <div class="chart-tools">
+            <select id="heatmapMachineType" aria-label="Heatmap machine selection">
+              <option value="TBMMachine ID">TBM Machine ID</option>
+              <option value="Curing Machine ID">Curing Machine ID</option>
+            </select>
+          </div>
+        </div>
+        <div class="chart-scroll">
+          <div id="heatmapTableWrap"></div>
+        </div>
+      </article>
+    </section>
+
+    <!-- Sankey diagram section (Machine Analysis page 1) -->
+    <section id="sankeySection" hidden>
+      <article class="card chart-card wide">
+        <div class="chart-head">
+          <div>
+            <h3>🌊 Defect → Machine Flow (Sankey)</h3>
+            <p>Flow visualization: which defects originate from which machines</p>
+          </div>
+          <div class="chart-tools">
+            <select id="sankeyMachineType" aria-label="Machine type for Sankey">
+              <option value="TBMMachine ID">TBM Machine</option>
+              <option value="Curing Machine ID">Curing Machine</option>
+            </select>
+          </div>
+        </div>
+        <div id="sankeyBody" style="min-height:300px;"></div>
+      </article>
+    </section>
+
+    <!-- Charts -->
+    <section id="charts"></section>
+
+    <!-- Cumulative Defect Tracker (visible on Dashboard Overview page 0) -->
+    <section id="cumulativeSection" hidden>
+      <article class="card chart-card wide">
+        <div class="chart-head">
+          <div>
+            <h3>📈 Cumulative Defect Tracker</h3>
+            <p>Running total of defects over time vs configurable target</p>
+          </div>
+          <div class="chart-tools">
+            <label>Target: <input id="cumulativeTarget" type="number" min="0" value="500" style="width:70px;"></label>
+          </div>
+        </div>
+        <div class="chart-scroll"><div class="canvas-wrap" style="height:320px;"><canvas id="canvas-cumulative"></canvas></div></div>
+      </article>
+    </section>
+
+    <!-- Defect Velocity Chart (visible on Dashboard Overview page 0) -->
+    <section id="velocitySection" hidden>
+      <article class="card chart-card wide">
+        <div class="chart-head">
+          <div>
+            <h3>⚡ Defect Velocity & Acceleration</h3>
+            <p>Rate of change of defects — is the problem growing or shrinking?</p>
+          </div>
+        </div>
+        <div class="chart-scroll"><div class="canvas-wrap" style="height:280px;"><canvas id="canvas-velocity"></canvas></div></div>
+      </article>
+    </section>
+
+    <!-- Quality Scorecard (visible on Dashboard Overview page 0) -->
+    <section id="scorecardSection" hidden>
+      <article class="card">
+        <div class="chart-head">
+          <div>
+            <h3>🏆 Factory Quality Scorecard</h3>
+            <p>Composite quality index across multiple dimensions</p>
+          </div>
+        </div>
+        <div id="scorecardBody"></div>
+      </article>
+    </section>
+
+    <!-- Data Explorer Table -->
+    <section id="explorer" class="card" hidden>
+      <div class="table-toolbar">
+        <div>
+          <h3>Defect records</h3>
+          <p id="tableCount"></p>
+        </div>
+        <input id="search" placeholder="Search all 16 fields…" aria-label="Search records">
+        <select id="pageSize" aria-label="Rows per page">
+          <option>25</option>
+          <option>50</option>
+          <option>100</option>
+          <option>250</option>
+        </select>
+        <button id="colToggle" title="Show/hide table columns">👁 Columns</button>
+        <button id="csv">Export CSV</button>
+        <button id="excel">Export Excel</button>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead id="thead"></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <button id="prev">← Previous</button>
+        <span id="pageInfo"></span>
+        <button id="next">Next →</button>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>CT / Quality intelligence <span>Counts represent defect records, not production defect rates.</span></footer>
+
+  </main>
+
+  <!-- ===== Dialogs ===== -->
+
+  <!-- Record Detail Dialog -->
+  <dialog id="detail">
+    <div class="section-top">
+      <h2>Record details</h2>
+      <button id="closeDetail">Close ✕</button>
+    </div>
+    <dl id="detailFields"></dl>
+  </dialog>
+
+  <!-- Column Visibility Dialog -->
+  <dialog id="colDialog">
+    <div class="section-top">
+      <h2>👁 Column Visibility</h2>
+      <button id="closeColDialog">Close ✕</button>
+    </div>
+    <div id="colCheckboxes" class="col-checkboxes"></div>
+  </dialog>
+
+  <!-- Annotation Dialog -->
+  <dialog id="annotationDialog">
+    <div class="section-top">
+      <h2>📝 Data Annotations</h2>
+      <button id="closeAnnotation">Close ✕</button>
+    </div>
+    <div class="annotation-content">
+      <textarea id="annotationText" rows="4" placeholder="Add a note for this record..."></textarea>
+      <button id="saveAnnotation" class="primary">Save Note</button>
+      <div id="annotationsList"></div>
+    </div>
+  </dialog>
+
+</body>
+</html>
