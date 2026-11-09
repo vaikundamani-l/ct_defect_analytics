@@ -1,34 +1,38 @@
 # CT Defect Analytics
 
-## Run locally or Deploy to GitHub
+## Client-Side Architecture & Privacy
 
-### 1. Hosted on GitHub Pages / Web Server (Recommended)
-When uploaded to a GitHub repository with GitHub Pages enabled (or served on any HTTP/HTTPS web server):
-- The dashboard automatically fetches `CT Defects-1.xlsx` from the same location (`./CT Defects-1.xlsx`).
-- Anyone opening the site gets instant access with **zero setup or manual uploading required**.
-- All processing and aggregations run **100% locally in the user's browser** via SheetJS and Chart.js.
-- Workbooks are cached locally in the browser's IndexedDB, so subsequent visits or offline usage load instantly without re-downloading.
+This application is built with a **100% client-side privacy architecture**:
+- **Data files are maintained locally only**: `CT Defects-1.xlsx` and other raw data files are never committed to GitHub or sent to any remote server (enforced via `.gitignore`).
+- **Browser-local processing**: All Excel parsing (via SheetJS) and visualization (via Chart.js) occur purely in your browser's memory on your machine.
+- **Offline persistence**: When you choose `CT Defects-1.xlsx`, it is stored in your browser's private local IndexedDB (`CTDefectDB`), allowing the dashboard to remember your data across reloads and offline sessions without external server communication.
 
-### 2. Broken Link & Offline Fallback
-- If the file link is broken (e.g. 404, file moved, or network failure), the dashboard automatically checks local IndexedDB storage to restore any previously cached data.
-- If no cache is found, the application gracefully prompts the user with a prominent **"📁 Choose CT Defects-1.xlsx"** button to pick the file directly from their device.
+## How to Run
 
-### 3. Local File System (`file://`)
-1. Extract or clone this repository into a folder.
+### 1. Hosted on GitHub Pages (or any Web Server)
+1. Open the hosted dashboard URL (e.g. `https://vaikundamani-l.github.io/ct_defect-_analytics/`).
+2. Click **Choose workbook** (or **Upload Excel**) to select your local `CT Defects-1.xlsx`.
+3. The dashboard loads your quality data instantly and saves it to local browser storage for future visits.
+
+### 2. Local File System (`file://`)
+1. Clone or download this repository to your computer.
 2. Double-click `index.html` in Chrome, Edge, or Firefox.
-3. Due to browser security restrictions on the `file://` protocol, direct fetching is blocked; click **Choose CT Defects-1.xlsx** to select the workbook once.
-4. The dashboard will automatically cache the workbook in IndexedDB for subsequent local launches.
+3. Click **Choose CT Defects-1.xlsx** to select your workbook from your device.
 
-No backend, server setup, or build step is required. Internet access is only needed once to load the pinned Chart.js (v4.4.8) and SheetJS (v0.20.3) CDN scripts. All analytics run entirely within client memory.
+No backend, database, or build step is required. Internet access is only needed to fetch the pinned Chart.js (v4.4.8) and SheetJS (v0.20.3) CDN scripts.
 
-## Included
+## Included Files (GitHub Repository)
 
-- `index.html`: application shell.
-- `styles.css`: responsive interface.
-- `engine.js`: date normalization, central filters, aggregation and CSV export.
-- `app.js`: Excel import, all pages, slicers, chart interactions and exports.
-- `CT Defects-1.xlsx`: original source workbook.
-- `VALIDATION.md`: completed checks and verification limits.
+- `index.html`: application shell and layout.
+- `styles.css`: clean manufacturing interface styling.
+- `enhancements.css`: tile slicers and visual styling enhancements.
+- `engine.js`: date normalization, uniqueness enforcement, filtering, aggregation, and export utilities.
+- `app.js`: client-side Excel ingestion, chart rendering, slicer controls, and offline IndexedDB cache management.
+- `.gitignore`: ensures Excel workbooks (`*.xlsx`, `*.xls`, `*.csv`) remain local and are never pushed to GitHub.
+- `README.md`: user guide and architecture documentation.
+- `VALIDATION.md`: test results and verified limits.
+
+*(Note: `CT Defects-1.xlsx` is maintained strictly on your local computer).*
 
 ## Working with filters
 
