@@ -1,5 +1,5 @@
 'use strict';
-const CACHE_NAME = 'ct-defect-analytics-v1';
+const CACHE_NAME = 'ct-defect-analytics-v2';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
