@@ -125,14 +125,18 @@ function destroyCharts() {
 
 // Sidebar Navigation
 $('nav').innerHTML = pages.map((p, i) =>
-  `<button data-page="${i}" class="${i === 0 ? 'active' : ''}"><span class="nav-icon">${['▦', '⚙', '🛞', '▥'][i]}</span><span class="nav-text">${p}</span></button>`
+  `<button data-page="${i}" aria-label="${p}" ${i === 0 ? 'aria-current="page"' : ''} class="${i === 0 ? 'active' : ''}"><span class="nav-icon">${['▦', '⚙', '🛞', '▥'][i]}</span><span class="nav-text">${p}</span></button>`
 ).join('');
 
 $('nav').onclick = e => {
   const b = e.target.closest('[data-page]');
   if (b) {
     state.page = +b.dataset.page;
-    document.querySelectorAll('[data-page]').forEach(x => x.classList.toggle('active', x === b));
+    document.querySelectorAll('[data-page]').forEach(x => {
+      x.classList.toggle('active', x === b);
+      if (x === b) x.setAttribute('aria-current', 'page');
+      else x.removeAttribute('aria-current');
+    });
     $('pageTitle').textContent = pages[state.page];
     destroyCharts();
     mountCharts();
@@ -141,7 +145,8 @@ $('nav').onclick = e => {
 };
 
 $('collapse').onclick = () => {
-  document.body.classList.toggle('collapsed');
+  const collapsed = document.body.classList.toggle('collapsed');
+  $('collapse').setAttribute('aria-expanded', String(!collapsed));
   setTimeout(() => state.instances.forEach(c => c.resize()), 50);
 };
 
@@ -197,8 +202,10 @@ function updateTargetBadge() {
   const targetInput = $('targetDefects');
   if (!targetInput) return;
   const target = +targetInput.value || 50;
-  const days = E.group(state.filtered, '_day');
-  const avg = days.length ? +(state.filtered.length / days.length).toFixed(1) : 0;
+  const datedRows = state.filtered.filter(row => row._analysisDate);
+  const days = new Set(datedRows.map(row => row._analysisDate));
+  const avg = days.size ? +(datedRows.length / days.size).toFixed(1) : 0;
+  document.querySelector('.target-control').hidden = !days.size;
   const badge = $('targetBadge');
   if (badge) {
     const diff = +(avg - target).toFixed(1);
@@ -243,7 +250,7 @@ function renderSlicers() {
           <button data-op="clear">Clear</button>
         </div>
         <div class="tile-options">
-          ${vals.map(v => `<button class="tile-option ${set.has(v) ? 'selected' : ''}" data-value="${escapeHTML(v)}">
+          ${vals.map(v => `<button class="tile-option ${set.has(v) ? 'selected' : ''}" data-value="${escapeHTML(v)}" aria-pressed="${set.has(v)}">
             <span>${escapeHTML(display(f, v))}</span>
             <strong>${fmt(counts.get(v) || 0)}</strong>
           </button>`).join('') || '<p class="muted">No available values</p>'}
@@ -266,7 +273,15 @@ $('slicers').onclick = e => {
       s.add(tile.dataset.value);
     }
     state.slicers[f] = s;
+    const scrollLeft = tile.closest('.tile-options').scrollLeft;
     changeSlicer(f);
+    const replacement = [...$('slicers').querySelectorAll('.tile-option')].find(button =>
+      button.dataset.value === tile.dataset.value && button.closest('[data-field]').dataset.field === f
+    );
+    if (replacement) {
+      replacement.closest('.tile-options').scrollLeft = scrollLeft;
+      replacement.focus({ preventScroll: true });
+    }
     return;
   }
   const op = e.target.dataset.op;
@@ -275,6 +290,7 @@ $('slicers').onclick = e => {
   const f = container.dataset.field;
   state.slicers[f] = op === 'all' ? new Set(available(f)) : new Set();
   changeSlicer(f);
+  $('slicers').querySelector(`[data-field="${f}"] [data-op="${op}"]`)?.focus({ preventScroll: true });
 };
 
 function changeSlicer(f) {
@@ -942,6 +958,9 @@ function render() {
 
   $('filteredCount').textContent = state.loaded ? `${fmt(state.filtered.length)} of ${fmt(state.rows.length)} unique records` : 'Awaiting workbook';
   $('welcome').hidden = state.loaded;
+  $('kpis').hidden = !state.loaded;
+  document.querySelector('.filter-panel').hidden = !state.loaded;
+  for (const id of ['reset', 'savedFilters', 'printReport']) $(id).disabled = !state.loaded;
   $('charts').hidden = !state.loaded;
   $('explorer').hidden = !state.loaded;
 
@@ -1617,6 +1636,7 @@ $('thead').onclick = e => {
     state.ascending = state.sort === b.dataset.sort ? !state.ascending : true;
     state.sort = b.dataset.sort;
     renderTable();
+    $('thead').querySelector(`[data-sort="${state.sort}"]`)?.focus({ preventScroll: true });
   }
 };
 
@@ -1632,7 +1652,10 @@ $('tbody').onclick = e => {
 };
 
 $('tbody').onkeydown = e => {
-  if (e.key === 'Enter') e.target.click();
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    e.target.click();
+  }
 };
 
 $('closeDetail').onclick = () => $('detail').close();
@@ -1866,17 +1889,6 @@ async function loadCache() {
   }
 }
 
-function askChooseFile(message) {
-  const escaped = escapeHTML(message);
-  status(`<div class="load-prompt"><span>⚠️ ${escaped}</span><button id="statusChooseBtn" class="prompt-btn" type="button">📁 Choose Excel file</button></div>`, true);
-  const btn = $('statusChooseBtn');
-  if (btn) btn.onclick = () => $('upload').click();
-  const notice = $('welcomeNotice');
-  if (notice) {
-    notice.innerHTML = `<div class="welcome-alert"><strong>⚠️ Data Source Notice:</strong> ${escaped}<br>Click <strong>Choose workbook</strong> below to pick your Excel file (e.g. <code>CT Defects-1.xlsx</code> or any file with the same columns).</div>`;
-  }
-}
-
 async function ensureSheetJS() {
   if (typeof XLSX !== 'undefined') return true;
   status('Loading Excel reader (SheetJS)…');
@@ -1968,8 +1980,6 @@ async function upload(file, opts = {}) {
     $('source').textContent = `${file.name} · ${fmt(state.rows.length)} unique records · Refreshed ${new Date().toLocaleString()}`;
     $('quality').innerHTML = `<details><summary>Data quality · Every row is unique · ${fmt(parsed.duplicates)} duplicate rows excluded · ${fmt(parsed.missingDates)} missing analysis dates · ${fmt(parsed.invalidDates)} unrecognized analysis dates</summary><p>Every row in this project is guaranteed unique. Exact duplicate rows across the 16 retained fields are excluded automatically upon import (keeping the first occurrence). Date filtering uses the Excel Date column; when Date is blank or invalid, Xray Date is used as fallback (${fmt(parsed.fallbackDates)} fallback rows). Invalid or missing dates remain in unfiltered totals, but cannot match a date selection. Empty categories are excluded from their charts and distinct counts. ${fmt(blankRows)} rows empty across all ${E.FIELDS.length} displayed fields were skipped. DD/MM/YYYY is interpreted day-first.</p><div class="quality-badge"><span class="live-dot"></span> <strong>Enforced: Every row is unique</strong> (${fmt(state.rows.length)} unique records active)</div></details>`;
 
-    const notice = $('welcomeNotice');
-    if (notice) notice.innerHTML = '';
     mountCharts();
     reset();
 
@@ -2027,8 +2037,6 @@ async function mergeUploadFiles(files) {
     $('source').textContent = `Merged ${files.length} files (${fileNames}) · ${fmt(state.rows.length)} unique records · Refreshed ${new Date().toLocaleString()}`;
     $('quality').innerHTML = `<details><summary>Data quality · Merged ${files.length} files · ${fmt(parsed.duplicates)} duplicate rows excluded across files</summary><p>All ${files.length} files merged seamlessly. Exact duplicates across the combined dataset have been eliminated automatically.</p><div class="quality-badge"><span class="live-dot"></span> <strong>Enforced: Every row is unique</strong> (${fmt(state.rows.length)} unique records active)</div></details>`;
 
-    const notice = $('welcomeNotice');
-    if (notice) notice.innerHTML = '';
     mountCharts();
     reset();
     status(`Successfully merged ${files.length} workbooks (${fmt(state.rows.length)} unique records).`);
@@ -2045,27 +2053,11 @@ async function mergeUploadFiles(files) {
 
 $('upload').onchange = e => upload(e.target.files[0], { saveCache: true });
 if ($('mergeUpload')) $('mergeUpload').onchange = e => mergeUploadFiles(Array.from(e.target.files));
-document.querySelector('.welcome-upload').onchange = e => upload(e.target.files[0], { saveCache: true });
-
-// Keyboard Shortcuts & Accessibility (Feature #20)
-window.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    document.querySelectorAll('dialog[open]').forEach(d => d.close());
-  }
-  if (state.loaded && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
-    if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') return;
-    if (e.key === 'ArrowLeft' && state.tablePage > 1) {
-      state.tablePage--;
-      renderTable();
-    } else if (e.key === 'ArrowRight') {
-      const maxPages = Math.ceil(state.filtered.length / state.pageSize);
-      if (state.tablePage < maxPages) {
-        state.tablePage++;
-        renderTable();
-      }
-    }
-  }
-});
+for (const [buttonId, inputId] of [['chooseUpload', 'upload'], ['chooseWelcome', 'upload'], ['chooseMerge', 'mergeUpload']]) {
+  $(buttonId).onclick = () => {
+    if (!$(inputId).disabled) $(inputId).click();
+  };
+}
 
 renderSlicers();
 mountCharts();
@@ -2097,11 +2089,7 @@ async function initData() {
       console.warn('Cache restore error:', err);
     }
   }
-  askChooseFile(
-    location.protocol === 'file:' ?
-      'Direct local file fetching is restricted by browser security (file://). Please choose your Excel file to begin (it will be cached for future local visits).' :
-      'Default workbook could not be loaded from this location. Please choose or upload your Excel file to begin.'
-  );
+  if (!state.loaded && !$('upload').disabled) status('');
 }
 
 initData();
@@ -2109,3 +2097,4 @@ initData();
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
 }
+
