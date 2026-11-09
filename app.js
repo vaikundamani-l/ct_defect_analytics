@@ -140,11 +140,26 @@ $('nav').onclick = e => {
   }
 };
 
-$('collapse').onclick = () => {
-  const collapsed = document.body.classList.toggle('collapsed');
-  $('collapse').setAttribute('aria-expanded', String(!collapsed));
-  setTimeout(() => state.instances.forEach(c => c.resize()), 50);
-};
+function toggleSidebar(force) {
+  const isCurrentlyHidden = document.body.classList.contains('sidebar-hidden');
+  const shouldHide = typeof force === 'boolean' ? force : !isCurrentlyHidden;
+  document.body.classList.toggle('sidebar-hidden', shouldHide);
+  const label = $('collapse')?.querySelector('.collapse-label');
+  if (label) label.textContent = shouldHide ? 'Show navbar' : 'Hide navbar';
+  $('collapse')?.setAttribute('aria-expanded', String(!shouldHide));
+  $('collapse')?.setAttribute('title', shouldHide ? 'Show side navbar' : 'Hide side navbar');
+  try { localStorage.setItem('ct_sidebar_hidden', shouldHide ? '1' : '0'); } catch (e) {}
+  setTimeout(() => state.instances.forEach(c => c.resize()), 60);
+}
+
+if ($('collapse')) $('collapse').onclick = () => toggleSidebar();
+if ($('hideSidebarBtn')) $('hideSidebarBtn').onclick = () => toggleSidebar(true);
+
+try {
+  if (localStorage.getItem('ct_sidebar_hidden') === '1') {
+    toggleSidebar(true);
+  }
+} catch (e) {}
 
 function defaultDateFocus() {
   const years = [...new Set(state.rows.map(r => r._year).filter(Boolean))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
@@ -766,15 +781,16 @@ function renderCharts() {
         running += p[1];
         return totalSum ? +(running / totalSum * 100).toFixed(1) : 0;
       });
+      const hasAnySelected = selected.size > 0;
       datasets = [
         {
           type: 'bar',
           label: 'Defect records',
           data: pairs.map(p => p[1]),
           yAxisID: 'y',
-          backgroundColor: palette[0] + 'cc',
-          borderColor: palette[0],
-          borderWidth: 1,
+          backgroundColor: keys.map((k, i) => selected.has(k) ? '#153f98' : (hasAnySelected ? '#93c5fd55' : palette[i % palette.length] + 'cc')),
+          borderColor: keys.map(k => selected.has(k) ? '#0f295e' : '#ffffff'),
+          borderWidth: keys.map(k => selected.has(k) ? 2.5 : 1),
           borderRadius: 4
         },
         {
@@ -815,12 +831,13 @@ function renderCharts() {
         pointRadius: 3
       }));
     } else {
+      const hasAnySelected = selected.size > 0;
       datasets = [{
         label: 'Defect records',
         data: pairs.map(p => p[1]),
-        backgroundColor: keys.map((k, i) => selected.has(k) ? '#153f98' : round ? palette[i % palette.length] + 'dd' : '#4a80e4cc'),
-        borderColor: type === 'line' ? '#3674e8' : keys.map(k => selected.has(k) ? '#102c67' : '#ffffff'),
-        borderWidth: round ? 2 : 1,
+        backgroundColor: keys.map((k, i) => selected.has(k) ? '#153f98' : round ? palette[i % palette.length] + 'dd' : (hasAnySelected ? '#93c5fd55' : '#4a80e4cc')),
+        borderColor: type === 'line' ? '#3674e8' : keys.map(k => selected.has(k) ? '#0f295e' : '#ffffff'),
+        borderWidth: round ? 2 : keys.map(k => selected.has(k) ? 2.5 : 1),
         borderRadius: round ? 0 : 4,
         tension: 0.25,
         pointRadius: 4,
@@ -1076,7 +1093,8 @@ function renderRootCause(explicitDefect) {
   const rc = E.rootCause(state.filtered, target);
   if (!rc) return;
 
-  let html = `<div class="rc-header-badge">🎯 Analyzing Defect: <strong>${escapeHTML(rc.defectName)}</strong> · ${fmt(rc.defectCount)} records (${rc.defectShare}% of current selection)</div><div class="rc-grid">`;
+  let html = `<div class="rc-header-badge">🎯 Analyzing Defect: <strong>${escapeHTML(rc.defectName)}</strong> · ${rc.topResp ? `Responsibility: <strong>${escapeHTML(rc.topResp.name)}</strong> · ` : ''}${fmt(rc.defectCount)} records (${rc.defectShare}% of current selection)</div><div class="rc-grid">`;
+  if (rc.topResp) html += `<div class="rc-tile" data-field="Defect Resp" data-val="${escapeHTML(rc.topResp.name)}"><div class="rc-tile-lbl">Responsible Department</div><div class="rc-tile-val">${escapeHTML(rc.topResp.name)}</div><div class="rc-tile-sub">${fmt(rc.topResp.count)} records (${rc.topResp.pct}%)</div></div>`;
   if (rc.topCuring) html += `<div class="rc-tile" data-field="Curing Machine ID" data-val="${escapeHTML(rc.topCuring.id)}"><div class="rc-tile-lbl">Top Curing Machine</div><div class="rc-tile-val">${escapeHTML(rc.topCuring.id)}</div><div class="rc-tile-sub">${fmt(rc.topCuring.count)} records (${rc.topCuring.pct}%)</div></div>`;
   if (rc.topTbm) html += `<div class="rc-tile" data-field="TBMMachine ID" data-val="${escapeHTML(rc.topTbm.id)}"><div class="rc-tile-lbl">Top TBM Machine</div><div class="rc-tile-val">${escapeHTML(rc.topTbm.id)}</div><div class="rc-tile-sub">${fmt(rc.topTbm.count)} records (${rc.topTbm.pct}%)</div></div>`;
   if (rc.topSize) html += `<div class="rc-tile" data-field="Curing Tyre Size" data-val="${escapeHTML(rc.topSize.size)}"><div class="rc-tile-lbl">Most Affected Tyre Size</div><div class="rc-tile-val">${escapeHTML(rc.topSize.size)}</div><div class="rc-tile-sub">${fmt(rc.topSize.count)} records (${rc.topSize.pct}%)</div></div>`;
@@ -1085,6 +1103,7 @@ function renderRootCause(explicitDefect) {
   html += '</div>';
 
   const takeawayParts = [];
+  if (rc.topResp) takeawayParts.push(`Attributed primarily to <strong>${escapeHTML(rc.topResp.name)}</strong> (${rc.topResp.pct}%)`);
   if (rc.topCuring && rc.topCuring.pct >= 25) takeawayParts.push(`Heavily concentrated on Curing Machine <strong>${escapeHTML(rc.topCuring.id)}</strong> (${rc.topCuring.pct}%)`);
   if (rc.topSize && rc.topSize.pct >= 30) takeawayParts.push(`Predominant on Tyre Size <strong>${escapeHTML(rc.topSize.size)}</strong>`);
   if (rc.topArea) takeawayParts.push(`Primary physical zone is <strong>${escapeHTML(rc.topArea.name)}</strong>${rc.topSpot ? ` around ${rc.topSpot.angle}°` : ''}`);

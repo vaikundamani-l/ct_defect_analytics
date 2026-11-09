@@ -60,8 +60,13 @@ No backend, database, or build step is required. Internet access is only needed 
 
 ### 5. Automated Root Cause Intelligence Assistant
 - Multi-dimensional diagnostic assistant for any selected defect (or overall leading defect).
-- Automatically attributes defect concentrations across **Curing Machines**, **TBM Machines**, **Tyre Sizes**, and **Physical Circumference Angles**.
-- Displays interactive diagnostic tiles with 1-click drill-down filtering and human-readable diagnostic synthesis takeaways.
+- Automatically attributes defect concentrations across **Defect Responsibility** (responsible manufacturing department, e.g. TBM, Curing), **Curing Machines**, **TBM Machines**, **Tyre Sizes**, and **Physical Circumference Angles**.
+- Displays interactive diagnostic tiles with 1-click drill-down filtering, header badge context, and human-readable diagnostic synthesis takeaways.
+
+### 5b. Interactive Chart Highlighting & Bar Selection
+- Clicking any bar in the **Defect-wise count** Pareto chart (or other categorical charts) highlights the clicked item in deep blue (`#153f98`) with a high-contrast border.
+- Unselected bars automatically soften to a muted shade (`#93c5fd55`) to clearly emphasize the active filter in view.
+- Re-clicking the selected bar unselects it and restores the default categorical palette.
 
 ### 6. Interactive Tire Anatomical Cross-Section Map
 - Vector SVG cross-section visualizing defect density across physical tire zones: **Crown / Tread**, **Shoulder**, **Sidewall**, **Bead Area**, and **Innerliner**.
@@ -133,10 +138,11 @@ No backend, database, or build step is required. Internet access is only needed 
 
 ### Unified Workspaces & Navigation
 The navigation bar is cleanly organized into 4 focused workspaces:
-1. **Dashboard Overview**: Root Cause Assistant, Tire Cross-Section Map, 10 dedicated defect charts (redundant duplicate Defect distribution removed in favor of Pareto Defect-wise count drill), summary KPI cards, and quality uniqueness badge.
+1. **Dashboard Overview**: Root Cause Assistant with Defect Responsibility tile, Tire Cross-Section Map, 10 dedicated defect charts (redundant duplicate Defect distribution removed in favor of Pareto Defect-wise count drill), summary KPI cards, and quality uniqueness badge.
 2. **Machine Analysis**: Machine × Defect Heatmap Matrix, TBM & Curing machine-wise counts, and machine-defect split distributions.
 3. **SKU & Specification**: Tyre Size Pareto, Green Tyre GT Code breakdown, and SKU defect matrices.
 4. **Data Explorer**: Full defect records table with column sorting, pagination, debounced search across all 16 fields, and CSV/Excel exports.
+- **Side Navbar Hide / Expand Option**: Toggle the side navigation on or off via the `☰ Navbar` header button or the `⇦ Hide` button inside the sidebar. Hiding the sidebar expands the entire dashboard to 100% full width (`margin-left: 0`) for maximum charting canvas area, automatically triggering Chart.js canvas refits and persisting user preference in `localStorage`.
 - **Defect Records Explorer**: Clean full-width records table at the bottom of the dashboard with search across all 16 fields, pagination, column sorting, and CSV/Excel exports (redundant bottom breakdown tables removed for a clean, chart-first interface).
 
 Data Explorer search applies to the entire dashboard. Search covers the 16 displayed fields. Sort column headers, adjust page size, and click a row or press Enter to inspect it. Exports include every matching row, in current sort order, not only the visible page. Both CSV and Excel contain all 16 fields (including the Excel 2nd column Date). CSV prefixes potentially executable spreadsheet formulas with an apostrophe; Excel writes strings. Normalized dates are exported as YYYY-MM-DD. Unrecognized date text is retained.

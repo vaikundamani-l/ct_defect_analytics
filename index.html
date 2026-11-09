@@ -19,7 +19,10 @@
   <!-- ===== Sidebar ===== -->
   <aside id="sidebar">
     <div class="brand">
-      <b>CT<span> ◧</span></b>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <b>CT<span> ◧</span></b>
+        <button id="hideSidebarBtn" class="sidebar-close-btn" title="Hide side navbar" aria-label="Hide side navbar">⇦ Hide</button>
+      </div>
       <small>QUALITY INTELLIGENCE</small>
     </div>
     <p class="nav-label">WORKSPACE</p>
@@ -36,7 +39,7 @@
     <!-- Header -->
     <header>
       <div class="heading">
-        <button id="collapse" aria-label="Toggle sidebar labels" aria-controls="sidebar" aria-expanded="true">☰</button>
+        <button id="collapse" aria-label="Toggle side navbar" title="Toggle side navbar (Hide / Show)">☰ <span class="collapse-label">Navbar</span></button>
         <div>
           <h1>CT Defect Analytics</h1>
           <p id="source">Manufacturing quality · No workbook loaded</p>

@@ -1300,6 +1300,76 @@ dialog button#closeAnnotation:hover {
   color: #cbd5e1;
 }
 
+/* ── Sidebar Hide / Full-Width Toggle ── */
+body.sidebar-hidden aside#sidebar {
+  display: none !important;
+  width: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none;
+}
+
+body.sidebar-hidden main {
+  margin-left: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  transition: margin-left 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+aside#sidebar {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-close-btn {
+  background: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  border: 1px solid #334155;
+  border-radius: 5px;
+  padding: 2px 7px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.sidebar-close-btn:hover {
+  background: #243c60;
+  color: #ffffff;
+  border-color: #60a5fa;
+}
+
+#collapse {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--border, #e4e9f0);
+  border-radius: 7px;
+  color: var(--text-main, #172b45);
+  transition: var(--transition);
+}
+
+#collapse:hover {
+  background: #eff6ff;
+  border-color: var(--primary, #2563eb);
+  color: var(--primary, #2563eb);
+}
+
+[data-theme="dark"] #collapse {
+  background: #172033;
+  border-color: #26354e;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] #collapse:hover {
+  background: #1e3a8a33;
+  border-color: #60a5fa;
+  color: #93c5fd;
+}
+
 /* ── Print Brief Layout ── */
 @media print {
   aside,
