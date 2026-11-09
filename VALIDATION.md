@@ -34,6 +34,12 @@ Passed JavaScript syntax checks and DOM integration tests using the actual workb
 - Executive Print Layout verified: `#printReport` triggers browser print with `@media print` rules hiding navigation and controls for a pristine 2-column quality summary.
 - PWA & Offline Readiness verified: `manifest.json` parsed, `icon.svg` validated, Service Worker (`sw.js`) precaches shell assets and provides zero-network offline resilience.
 - CI/CD Deployment verified: `.github/workflows/deploy.yml` workflow created for zero-configuration push-to-deploy on GitHub Pages.
+- Statistical Process Control (SPC) verified on actual local data: Mean ($\bar{X}$) and $3\sigma$ Upper/Lower Control Limits calculated dynamically per period (e.g. October 2026: Mean = 37.4, UCL = 76.4); Out-of-Control spike detection and visual alert badges confirmed.
+- Root Cause Intelligence Assistant verified: automatically decomposes any defect (e.g. Shoulder Blow TBM: 1,527 records / 10.4%) across Curing Machines, TBM Machines, Shifts, Tyre Sizes, and Circumference Spotting angles with 1-click drill-down tiles.
+- Interactive Tire Anatomical Cross-Section Map verified: vector SVG cross-section renders Crown (762), Shoulder (2,043), Sidewall (2,258), Bead Area (4,145), and Innerliner (3,965) with dynamic heat fills and cross-filter selection.
+- Machine × Defect Correlation Heatmap Matrix verified on Machine Analysis workspace: generates cross-tabulation of machinery vs top defect types with gradient color scaling and dual-axis cell filtering.
+- Product / SKU Quality Profiling verified: dedicated SKU & Specification workspace featuring Tyre Size Pareto (`Curing Tyre Size`) and Green Tyre Code breakdown (`TBM GT Code`).
+- Control Room Dark Mode & Daily Defect Target Setting verified: high-contrast dark theme toggle (`data-theme="dark"`) with local storage persistence and configurable daily defect count threshold badge.
 
 Verified using headless Google Chrome with live Canvas rendering, real SheetJS parsing of CT Defects-1.xlsx, DOM interaction tests, and visual screenshot capture.
 

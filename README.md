@@ -57,33 +57,52 @@ No backend, database, or build step is required. Internet access is only needed 
 - Defect Spotting reflects angular positions (0°–360°) around the tire circumference.
 - Rendered natively as a radial **Polar Area Clock Chart**, visualizing spatial defect clusters around the tire.
 
-### 4. Executive Print / PDF Quality Brief
+### 4. Statistical Process Control (SPC) & Anomaly Detection
+- Daily defect run chart with automated **$3\sigma$ Upper Control Limit (UCL)**, **Mean ($\bar{X}$)**, and **Lower Control Limit (LCL)**.
+- Automatically detects and flags **Out-of-Control Anomaly Spikes** exceeding UCL with red warning badges and alert indicators.
+- Operates 100% on internal defect record variations without requiring external production volume figures.
+
+### 5. Automated Root Cause Intelligence Assistant
+- Multi-dimensional diagnostic assistant for any selected defect (or overall leading defect).
+- Automatically attributes defect concentrations across **Curing Machines**, **TBM Machines**, **Production Shifts**, **Tyre Sizes**, and **Physical Circumference Angles**.
+- Displays interactive diagnostic tiles with 1-click drill-down filtering and human-readable diagnostic synthesis takeaways.
+
+### 6. Interactive Tire Anatomical Cross-Section Map
+- Vector SVG cross-section visualizing defect density across physical tire zones: **Crown / Tread**, **Shoulder**, **Sidewall**, **Bead Area**, and **Innerliner**.
+- Zones dynamically heat-map from cool blue to alert red based on defect frequency.
+- Clicking any zone or legend item instantly filters the entire dashboard by that physical zone.
+
+### 7. Machine × Defect Correlation Heatmap Matrix
+- 2D grid matrix on the **Machine Analysis** workspace mapping Machinery (TBM or Curing) against Top Defect Types.
+- Color intensity gradient visualizes defect density per machine; clicking any cell isolates that machine-defect pair.
+
+### 8. Product / SKU Quality Profiling (`Size` & `Green Tyre Code`)
+- Dedicated **SKU & Specification** workspace featuring:
+  - **Tyre Size Defect Distribution & Pareto**: Analysis across all commercial tire sizes (`Curing Tyre Size`).
+  - **Green Tyre GT Code Breakdown**: Defect frequency across tire building specs (`TBM GT Code`).
+  - **Tyre Size × Defect Group** and **Top Defects by Tyre Size** cross-tabulations.
+
+### 9. Control Room Dark Mode & Quality Target Setting
+- High-contrast **🌙 Dark Mode / ☀️ Light Mode** toggle tailored for factory control rooms, test labs, and dark plant floors.
+- **Custom Daily Defect Target Setting**: Set factory defect thresholds (e.g. Target $\le 50$ defects/day) with live dynamic comparison badges (`✓ Within Target` vs `⚠️ Exceeding Target`).
+
+### 10. Executive Print / PDF Quality Brief
 - Click the **⎙ Print Brief** button in the header (or press `Ctrl+P`) to generate an executive-ready 2-column quality summary.
 - Print stylesheets (`@media print`) hide navigation sidebars, controls, and pagination, producing an immaculate physical or PDF briefing.
 
-### 5. PWA & Offline Installation
+### 11. PWA & Offline Installation
 - Fully installable as a standalone desktop application via Chrome/Edge ("Install App").
 - Powered by `sw.js` Service Worker and IndexedDB (`CTDefectDB`), enabling 100% offline usage with zero internet dependency once loaded.
 
-### 6. Automated GitHub Pages CI/CD
+### 12. Automated GitHub Pages CI/CD
 - GitHub Actions workflow (`.github/workflows/deploy.yml`) automatically builds and deploys the dashboard to GitHub Pages on every push to `main`.
 
-### Unified Dashboard Overview
-The **Dashboard Overview** merges all perspectives from the former Responsibility Analysis and Location Analysis pages into a single, cohesive intelligence center:
-- **11 Dedicated Count Charts** (all clean, non-stacked single-dimension charts with direct numeric data value labels):
-  1. Month-wise defect count (drill sequence, wide full width)
-  2. Day-wise defect count (drill sequence, line with numeric data points)
-  3. Defect-wise count (Pareto 80/20 dual-axis bar + cumulative % line)
-  4. Defect Spotting (Polar Clock radial degree distribution 0°–360°)
-  5. Defect responsibility (horizontal bar with count values)
-  6. TBM machine-wise count (bar with count values)
-  7. Curing machine code-wise count (horizontal bar with top selector and count values)
-  8. Defect distribution (horizontal bar with top selector, switchable to Pareto)
-  9. Defect groups (bar with top count selector and count values, switchable to Pareto)
-  10. Defect area distribution (doughnut chart)
-  11. Defect locations (horizontal bar)
-- **Unified Summary Insights**: Highlights top responsibility category, leading TBM machine, leading Curing machine, top defect location, and Year-over-Year comparison in a single header banner.
-- **Streamlined Navigation**: The navigation bar is cleanly organized into 3 focused workspaces: **Dashboard Overview**, **Machine Analysis**, and **Data Explorer**.
+### Unified Workspaces & Navigation
+The navigation bar is cleanly organized into 4 focused workspaces:
+1. **Dashboard Overview**: Root Cause Assistant, Tire Cross-Section Map, 11 dedicated defect charts, summary KPI cards, and quality uniqueness badge.
+2. **Machine Analysis**: Machine × Defect Heatmap Matrix, TBM & Curing machine-wise counts, and machine-defect split distributions.
+3. **SKU & Specification**: Tyre Size Pareto, Green Tyre GT Code breakdown, and SKU defect matrices.
+4. **Data Explorer**: Full defect records table with column sorting, pagination, debounced search across all 16 fields, and CSV/Excel exports.
 - **Defect Records Explorer**: Clean full-width records table at the bottom of the dashboard with search across all 16 fields, pagination, column sorting, and CSV/Excel exports (redundant bottom breakdown tables removed for a clean, chart-first interface).
 
 Data Explorer search applies to the entire dashboard. Search covers the 16 displayed fields. Sort column headers, adjust page size, and click a row or press Enter to inspect it. Exports include every matching row, in current sort order, not only the visible page. Both CSV and Excel contain all 16 fields (including the Excel 2nd column Date). CSV prefixes potentially executable spreadsheet formulas with an apostrophe; Excel writes strings. Normalized dates are exported as YYYY-MM-DD. Unrecognized date text is retained.
