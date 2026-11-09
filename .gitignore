@@ -1,0 +1,10 @@
+# Data files (maintained locally only - never committed or uploaded to GitHub)
+*.xlsx
+*.xls
+*.csv
+
+# System and temporary files
+.DS_Store
+Thumbs.db
+*.log
+/scratch/
