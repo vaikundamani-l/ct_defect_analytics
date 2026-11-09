@@ -63,10 +63,8 @@ const state = {
   loaded: false,
   visibleColumns: initialVisibleCols,
   cumulativeInstance: null,
-  velocityInstance: null,
   activeDetailRecord: null,
-  dismissedOffenders: new Set(),
-  hideOffendersList: false
+  dismissedOffenders: new Set()
 };
 window.state = state;
 
@@ -119,10 +117,6 @@ function destroyCharts() {
     state.cumulativeInstance.destroy();
     state.cumulativeInstance = null;
   }
-  if (state.velocityInstance) {
-    state.velocityInstance.destroy();
-    state.velocityInstance = null;
-  }
 }
 
 // Sidebar Navigation
@@ -167,7 +161,6 @@ function reset() {
   state.tablePage = 1;
   state.dedupe = true;
   state.dismissedOffenders = new Set();
-  state.hideOffendersList = false;
   if (state.loaded) defaultDateFocus();
   renderSlicers();
   render();
@@ -1021,9 +1014,8 @@ function render() {
   const isP0 = state.loaded && state.page === 0;
   if ($('summaryParetoSection')) $('summaryParetoSection').hidden = !isP0;
   if ($('advancedVisuals')) $('advancedVisuals').hidden = !isP0;
-  if ($('machineIntelSection')) $('machineIntelSection').hidden = !isP0;
+  if ($('repeatOffenderSection')) $('repeatOffenderSection').hidden = !isP0;
   if ($('cumulativeSection')) $('cumulativeSection').hidden = !isP0;
-  if ($('velocitySection')) $('velocitySection').hidden = !isP0;
 
   // Page 1 Visibility (Machine Analysis)
   const isP1 = state.loaded && state.page === 1;
@@ -1037,10 +1029,8 @@ function render() {
     renderTireDiagram();
     renderWeeklySummary();
     renderRepeatOffenders();
-    renderMachineHealth();
     renderParetoProgress();
     renderCumulativeChart();
-    renderVelocityChart();
   }
 
   if (isP1) {
@@ -1242,13 +1232,6 @@ function renderRepeatOffenders() {
   if (!state.loaded || state.page !== 0) return;
   if (!state.dismissedOffenders) state.dismissedOffenders = new Set();
 
-  if (state.hideOffendersList) {
-    $('repeatOffenderBody').innerHTML = `<p class="muted">Repeat offender list is hidden. <button id="restoreOffendersListBtn" style="font-size:11px;padding:3px 8px;margin-left:8px;cursor:pointer;background:var(--primary);color:#fff;border:none;border-radius:4px;">Show list</button></p>`;
-    const btn = $('restoreOffendersListBtn');
-    if (btn) btn.onclick = () => { state.hideOffendersList = false; renderRepeatOffenders(); };
-    return;
-  }
-
   // Calculate repeat offenders on period & query without self-filtering on machine/defect,
   // so clicking an offender does not wipe out all other offenders from the list!
   const baseCharts = { ...state.charts };
@@ -1272,10 +1255,7 @@ function renderRepeatOffenders() {
   const activeMachine = state.charts['TBMMachine ID'] && [...state.charts['TBMMachine ID']][0];
   const activeDefect = state.charts['Defect Name'] && [...state.charts['Defect Name']][0];
 
-  let html = `<div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
-    <button id="hideOffendersListBtn" style="font-size:11px;padding:2px 8px;cursor:pointer;background:transparent;border:1px solid var(--card-border);color:var(--text-muted);border-radius:4px;" title="Hide entire repeat offenders list">👁️ Hide list</button>
-  </div>`;
-  html += `<table class="offender-table"><thead><tr><th>Machine</th><th>Defect Name</th><th>Count</th><th>Avg/Machine</th><th>Concentration</th><th>Risk Level</th><th>Action</th></tr></thead><tbody>`;
+  let html = `<table class="offender-table"><thead><tr><th>Machine</th><th>Defect Name</th><th>Count</th><th>Avg/Machine</th><th>Concentration</th><th>Risk Level</th></tr></thead><tbody>`;
   offenders.forEach(o => {
     const isSel = (activeMachine === o.machine && activeDefect === o.defect);
     const risk = o.ratio >= 2.5 ? 'critical' : o.ratio >= 1.7 ? 'warning' : 'watch';
@@ -1287,28 +1267,14 @@ function renderRepeatOffenders() {
       <td>${fmt(o.avgForDefect)}</td>
       <td><span style="font-weight:700;color:${o.ratio >= 2.5 ? '#ef4444' : '#f59e0b'};">${o.ratio}x</span></td>
       <td><span class="offender-badge ${risk}">${riskLabel}</span></td>
-      <td><button class="dismiss-offender-btn" data-machine="${escapeHTML(o.machine)}" data-defect="${escapeHTML(o.defect)}" title="Remove this offender from list" style="font-size:11px;padding:2px 6px;cursor:pointer;background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:4px;">✕ Remove</button></td>
     </tr>`;
   });
   html += '</tbody></table>';
   $('repeatOffenderBody').innerHTML = html;
-
-  const hideBtn = $('hideOffendersListBtn');
-  if (hideBtn) hideBtn.onclick = () => { state.hideOffendersList = true; renderRepeatOffenders(); };
 }
 
 if ($('repeatOffenderBody')) {
   $('repeatOffenderBody').onclick = e => {
-    const dismissBtn = e.target.closest('.dismiss-offender-btn');
-    if (dismissBtn) {
-      e.stopPropagation();
-      const m = dismissBtn.dataset.machine, d = dismissBtn.dataset.defect;
-      if (!state.dismissedOffenders) state.dismissedOffenders = new Set();
-      state.dismissedOffenders.add(m + '\u0000' + d);
-      renderRepeatOffenders();
-      return;
-    }
-
     const tr = e.target.closest('tr[data-machine]');
     if (tr) {
       const m = tr.dataset.machine, d = tr.dataset.defect;
@@ -1316,50 +1282,6 @@ if ($('repeatOffenderBody')) {
       state.dismissedOffenders.add(m + '\u0000' + d);
       selectChart('TBMMachine ID', m);
       selectChart('Defect Name', d);
-    }
-  };
-}
-
-// Machine Health Score (Feature #9)
-function renderMachineHealth() {
-  if (!state.loaded || state.page !== 0) return;
-  const machineField = $('healthMachineType')?.value || 'TBMMachine ID';
-
-  // Compute health on rows respecting slicers, query, dedupe, and other chart filters EXCEPT machineField itself.
-  // This ensures other machine cards remain visible and comparable when one machine is selected.
-  const healthCharts = { ...state.charts };
-  delete healthCharts[machineField];
-  const healthRows = E.filter(state.rows, state.slicers, healthCharts, state.query, state.dedupe);
-  const healthList = E.machineHealth(healthRows, machineField, 8);
-  if (!healthList || !healthList.length) {
-    $('machineHealthBody').innerHTML = '<p class="muted">No machine data available for current selection.</p>';
-    return;
-  }
-  const selectedMachine = state.charts[machineField] && [...state.charts[machineField]][0];
-  let html = '<div class="health-grid">';
-  healthList.forEach(m => {
-    const isSel = selectedMachine === m.machine;
-    const trendIcon = m.trend === 'improving' ? '📈 Improving' : m.trend === 'worsening' ? '📉 Worsening' : '➡️ Stable';
-    html += `<div class="health-card ${isSel ? 'selected' : ''}" style="cursor:pointer;" data-field="${escapeHTML(machineField)}" data-machine="${escapeHTML(m.machine)}" title="${isSel ? 'Click to unselect ' + escapeHTML(m.machine) : 'Click to filter by ' + escapeHTML(m.machine)}">
-      <div class="health-label">${escapeHTML(m.machine)}${isSel ? ' <span style="color:var(--primary);font-weight:bold;">✓ Active</span>' : ''}</div>
-      <div class="health-score">${m.score}<small style="font-size:12px;font-weight:400;">/100</small></div>
-      <div><span class="health-grade ${m.grade}">Grade ${m.grade}</span></div>
-      <div class="health-detail">${fmt(m.totalDefects)} defects · ${m.uniqueDefects} types</div>
-      <div class="health-detail" style="font-weight:600;margin-top:2px;">${trendIcon}</div>
-    </div>`;
-  });
-  html += '</div>';
-  $('machineHealthBody').innerHTML = html;
-}
-
-if ($('healthMachineType')) $('healthMachineType').onchange = () => renderMachineHealth();
-
-if ($('machineHealthBody')) {
-  $('machineHealthBody').onclick = e => {
-    const card = e.target.closest('.health-card');
-    if (card) {
-      const f = card.dataset.field, m = card.dataset.machine;
-      selectChart(f, m);
     }
   };
 }
@@ -1476,70 +1398,6 @@ if ($('cumulativeTarget')) {
     localStorage.setItem('ct_cumulative_target', e.target.value);
     renderCumulativeChart();
   };
-}
-
-// Defect Velocity & Acceleration Chart (Feature #14)
-function renderVelocityChart() {
-  if (!state.loaded || state.page !== 0 || typeof Chart === 'undefined') return;
-  const canvas = $('canvas-velocity');
-  if (!canvas) return;
-
-  const velData = E.defectVelocity(state.filtered);
-  if (!velData.length || velData.length < 2) {
-    if (state.velocityInstance) { state.velocityInstance.destroy(); state.velocityInstance = null; }
-    return;
-  }
-
-  const periods = velData.map(v => v.period);
-  const velocities = velData.map(v => v.velocity);
-  const accelerations = velData.map(v => v.acceleration);
-
-  const isDark = document.documentElement.dataset.theme === 'dark';
-  const gridColor = isDark ? '#1e293b' : '#edf1f6';
-
-  const data = {
-    labels: periods,
-    datasets: [
-      {
-        type: 'bar',
-        label: 'Velocity (Period-over-Period Change)',
-        data: velocities,
-        backgroundColor: velocities.map(v => v > 0 ? '#ef4444cc' : '#10b981cc'),
-        borderRadius: 4
-      },
-      {
-        type: 'line',
-        label: 'Acceleration (Rate of Velocity Change)',
-        data: accelerations,
-        borderColor: '#8b5cf6',
-        backgroundColor: '#8b5cf6',
-        tension: 0.2,
-        pointRadius: 4,
-        fill: false
-      }
-    ]
-  };
-
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    animation: false,
-    scales: {
-      x: { grid: { color: gridColor }, ticks: { font: { size: 10 } } },
-      y: { grid: { color: gridColor }, ticks: { font: { size: 10 } } }
-    },
-    plugins: {
-      legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
-    }
-  };
-
-  if (!state.velocityInstance) {
-    state.velocityInstance = new Chart(canvas, { type: 'bar', data, options, plugins: [whiteBackground] });
-  } else {
-    state.velocityInstance.data = data;
-    state.velocityInstance.options = options;
-    state.velocityInstance.update('none');
-  }
 }
 
 // Defect → Machine Flow (Sankey / Flow Diagram) (Feature #19)

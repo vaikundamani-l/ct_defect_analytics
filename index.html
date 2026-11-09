@@ -207,19 +207,6 @@
       </article>
     </section>
 
-    <!-- Defect Velocity Chart (visible on Dashboard Overview page 0) -->
-    <section id="velocitySection" hidden>
-      <article class="card chart-card wide">
-        <div class="chart-head">
-          <div>
-            <h3>⚡ Defect Velocity & Acceleration</h3>
-            <p>Rate of change of defects — is the problem growing or shrinking?</p>
-          </div>
-        </div>
-        <div class="chart-scroll"><div class="canvas-wrap" style="height:280px;"><canvas id="canvas-velocity"></canvas></div></div>
-      </article>
-    </section>
-
     <!-- Executive Quality Intelligence & Pareto Progress (below all charts, above table) -->
     <section id="summaryParetoSection" hidden>
       <div class="adv-grid">
@@ -244,34 +231,17 @@
       </div>
     </section>
 
-    <!-- Repeat Offender & Machine Health Section (below all charts, above table) -->
-    <section id="machineIntelSection" hidden>
-      <div class="adv-grid">
-        <article class="card adv-card">
-          <div class="chart-head">
-            <div>
-              <h3>🚨 Repeat Offender Machines</h3>
-              <p>Machines consistently producing the same defect above average</p>
-            </div>
+    <!-- Repeat Offender Machines Section (below all charts, above table) -->
+    <section id="repeatOffenderSection" hidden>
+      <article class="card adv-card" id="card-repeatOffenders">
+        <div class="chart-head">
+          <div>
+            <h3>🚨 Repeat Offender Machines</h3>
+            <p>Machines consistently producing the same defect above average</p>
           </div>
-          <div id="repeatOffenderBody"></div>
-        </article>
-        <article class="card adv-card">
-          <div class="chart-head">
-            <div>
-              <h3>⚙️ Machine Health Scores</h3>
-              <p>Composite quality score per machine (frequency, variety, trend)</p>
-            </div>
-            <div class="chart-tools">
-              <select id="healthMachineType" aria-label="Machine type for health scores">
-                <option value="TBMMachine ID">TBM Machine</option>
-                <option value="Curing Machine ID">Curing Machine</option>
-              </select>
-            </div>
-          </div>
-          <div id="machineHealthBody"></div>
-        </article>
-      </div>
+        </div>
+        <div id="repeatOffenderBody"></div>
+      </article>
     </section>
 
     <!-- Data Explorer Table -->

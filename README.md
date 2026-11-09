@@ -100,42 +100,35 @@ No backend, database, or build step is required. Internet access is only needed 
 
 ### 13. Repeat Offender Machine Detection
 - Intelligent statistical detection identifying machinery that consistently produces specific defect types above plant average.
-- Categorizes concentration risk levels (`CRITICAL`, `WARNING`, `WATCH`) with 1-click drilldown isolation.
+- Categorizes concentration risk levels (`CRITICAL`, `WARNING`, `WATCH`); clicking any row automatically isolates the machine and defect on the dashboard and removes that item from the active offender view.
 
-### 14. Machine Health Scorecards & Grading (A–F)
-- Composite 0–100 health scoring per machine incorporating defect frequency (40%), defect variety (30%), and historical trend (30%).
-- Assigns letter grades (`Grade A` to `Grade F`) and trend indicators (`📈 Improving`, `📉 Worsening`, `➡️ Stable`). Switchable between TBM and Curing machinery.
-
-### 15. Pareto Progress Tracker
+### 14. Pareto Progress Tracker
 - Tracks month-over-month performance of the historical "vital few" top 5 defect categories to verify whether corrective actions actually reduced defects. Side-by-side with Quality Period Summary in an aligned single-row layout.
 
-### 16. Cumulative Defect Tracker & Target Curve
+### 15. Cumulative Defect Tracker & Target Curve
 - Running cumulative defect chart comparing actual defect accumulation against custom factory targets over the period.
 
-### 17. Defect Velocity & Acceleration Analysis
-- Tracks the velocity (period-over-period change rate) and acceleration (second derivative) to detect whether quality issues are accelerating or decelerating.
-
-### 18. Defect → Machine Flow (Sankey Diagram)
+### 16. Defect → Machine Flow (Sankey Diagram)
 - Interactive flow diagram on the **Machine Analysis** workspace mapping defect types to originating machines with flow-width proportional to defect volume.
 
-### 19. Saved Filter Presets & Bookmarks
+### 17. Saved Filter Presets & Bookmarks
 - Save named filter configurations to browser local storage for instant 1-click recall of frequent investigation filters.
 
-### 20. Multi-File Excel Merge
+### 18. Multi-File Excel Merge
 - Merge multiple Excel workbooks simultaneously via the `⊕ Merge Files` action, automatically deduplicating records across all files upon ingestion.
 
-### 21. Data Annotations & Notes
+### 19. Data Annotations & Notes
 - Attach persistent engineer notes and quality memos to specific barcodes/records, stored locally in IndexedDB/localStorage.
 
-### 22. Executive Print / PDF Quality Brief
+### 20. Executive Print / PDF Quality Brief
 - Click the **⎙ Print Brief** button in the header (or press `Ctrl+P`) to generate an executive-ready 2-column quality summary.
 - Print stylesheets (`@media print`) hide navigation sidebars, controls, and pagination, producing an immaculate physical or PDF briefing.
 
-### 23. PWA & Offline Installation
+### 21. PWA & Offline Installation
 - Fully installable as a standalone desktop application via Chrome/Edge ("Install App").
 - Powered by `sw.js` Service Worker and IndexedDB (`CTDefectDB`), enabling 100% offline usage with zero internet dependency once loaded.
 
-### 24. Automated GitHub Pages CI/CD
+### 22. Automated GitHub Pages CI/CD
 - GitHub Actions workflow (`.github/workflows/deploy.yml`) automatically builds and deploys the dashboard to GitHub Pages on every push to `main`.
 
 ### Unified Workspaces & Navigation

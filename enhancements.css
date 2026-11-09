@@ -450,12 +450,12 @@ header button.upload:not(.primary):hover {
 
 /* ── Period Summary & Pareto Progress (Single-Row Grid) ── */
 #summaryParetoSection,
-#machineIntelSection {
+#repeatOffenderSection {
   margin-bottom: 20px;
 }
 
 #summaryParetoSection .adv-card,
-#machineIntelSection .adv-card {
+#repeatOffenderSection .adv-card {
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -706,72 +706,6 @@ header button.upload:not(.primary):hover {
   background: #dbeafe;
   color: #1e40af;
   border: 1px solid #bfdbfe;
-}
-
-/* ── Machine Health Scorecards ── */
-.health-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-  gap: 12px;
-  padding: 6px 0;
-}
-
-.health-card {
-  padding: 14px;
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-md);
-  background: #f8fafc;
-  text-align: center;
-  transition: var(--transition);
-}
-
-.health-card:hover {
-  background: #ffffff;
-  border-color: var(--primary);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
-}
-
-.health-card.selected {
-  border-color: var(--primary) !important;
-  background: rgba(37, 99, 235, 0.08) !important;
-  box-shadow: 0 0 0 2px var(--primary);
-}
-
-.health-label {
-  font-size: 12px;
-  color: var(--text-muted);
-  font-weight: 700;
-}
-
-.health-score {
-  font-size: 32px;
-  font-weight: 900;
-  margin: 6px 0 4px;
-  letter-spacing: -1px;
-  color: var(--text-main);
-}
-
-.health-grade {
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: var(--radius-full);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.4px;
-}
-
-.health-grade.A { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
-.health-grade.B { background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; }
-.health-grade.C { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
-.health-grade.D { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
-.health-grade.F { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
-
-.health-detail {
-  font-size: 11px;
-  color: var(--text-light);
-  margin-top: 6px;
-  font-weight: 500;
 }
 
 /* ── Pareto Progress Tracker ── */
@@ -1353,21 +1287,6 @@ dialog button#closeAnnotation:hover {
 [data-theme="dark"] .offender-table tr.selected td:first-child,
 [data-theme="dark"] .pareto-progress tr.selected td:first-child {
   border-left-color: #60a5fa;
-}
-
-[data-theme="dark"] .health-card {
-  background: #172033;
-  border-color: #26354e;
-}
-
-[data-theme="dark"] .health-card.selected {
-  border-color: #60a5fa !important;
-  background: rgba(37, 99, 235, 0.22) !important;
-  box-shadow: 0 0 0 2px #60a5fa;
-}
-
-[data-theme="dark"] .health-score {
-  color: #f8fafc;
 }
 
 [data-theme="dark"] .factor-bar {

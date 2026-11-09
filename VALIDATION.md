@@ -51,15 +51,13 @@ Passed JavaScript syntax checks and DOM integration tests using the actual workb
 - Comprehensive Advanced Quality Suite verified on local 14,627 records:
   - KPI Trend Badges (Period-over-Period % change) verified: renders dynamic ↑/↓ badges comparing current period against previous.
   - Automated Quality Period Summary verified: synthesizes key events, top defects, and SPC stability highlights.
-  - Repeat Offender Machine Detection verified: flags machinery exceeding average concentration with CRITICAL/WARNING/WATCH badges; clicking an offender isolates the machine and defect and automatically dismisses that specific offender while keeping the remaining repeat offenders visible in the list; includes 1-click "👁️ Hide list" / "Show list" toggle.
-  - Machine Health Scoring verified: composite quality score (0–100) and letter grades (A–F) with trend indicators; supports toggleable card selection (`.selected`), maintains visibility of all machine cards during single-machine isolation, and dynamically updates scores when defects or areas are clicked elsewhere.
+  - Repeat Offender Machine Detection verified: flags machinery exceeding average concentration with CRITICAL/WARNING/WATCH badges; clicking an offender isolates the machine and defect on the dashboard and automatically dismisses that specific offender while keeping the remaining repeat offenders visible in the list (without Action column or Hide button per user specification).
   - Pareto Progress Tracker verified: tracks vital-few defect trajectories across periods, dynamically updates when other charts (machines, areas, months) are clicked, and supports toggleable defect row clicks with active visual indicators (`.selected`).
   - Month Chart Click Synchronization verified: clicking any bar in Month-wise defect count (`monthDrill`) performs identical full-dashboard updates as clicking the Month filter tile in Report filters (highlights slicer tile, unlocks Day-wise SPC Run chart with daily value labels, updates Pareto subheader, synthesizes Quality Period Summary, and recalculates KPI trend badges; clicking again cleanly toggles off).
-  - Executive Cards Layout Repositioning verified: Quality Period Summary, Pareto Progress Tracker, Repeat Offender Machines, and Machine Health Scores moved directly below all charts (primary, cumulative, velocity) and directly above the Defect records explorer table (`Y(charts) < Y(cumulative) < Y(velocity) < Y(summaryPareto) < Y(machineIntel) < Y(explorer)`).
+  - Executive Cards Layout Repositioning verified: Quality Period Summary, Pareto Progress Tracker, and Repeat Offender Machines moved directly below all charts (primary, cumulative) and directly above the Defect records explorer table (`Y(charts) < Y(cumulative) < Y(summaryPareto) < Y(repeatOffender) < Y(explorer)`).
   - Report Filters Width Ratio verified: Year filter tile sized to 20% and Month filter tile sized to 70% of the report filters container width.
-  - Factory Quality Scorecard removed completely from DOM and runtime execution per user specification.
+  - Factory Quality Scorecard, Machine Health Scores, and Defect Velocity & Acceleration Chart removed completely from DOM and runtime execution per user specification.
   - Cumulative Defect Tracker verified: running cumulative defect total vs target curves.
-  - Defect Velocity & Acceleration Chart verified: first and second derivative of defect counts over time.
   - Defect → Machine Flow (Sankey Diagram) verified: SVG flow paths connecting defect types to production machinery.
   - Saved Filter Presets verified: save, apply, and delete filter presets in browser local storage.
   - Multi-File Merge verified: simultaneous ingestion and cross-file uniqueness deduplication.
