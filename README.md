@@ -10,7 +10,7 @@ This application is built with a **100% client-side privacy architecture**:
 ## How to Run
 
 ### 1. Hosted on GitHub Pages (or any Web Server)
-1. Open the hosted dashboard URL (e.g. `https://vaikundamani-l.github.io/ct_defect-_analytics/`).
+1. Open the hosted dashboard URL (e.g. `https://vaikundamani-l.github.io/ct_defect_analytics/`).
 2. Click **Choose workbook** (or **Upload Excel**) to select your local `CT Defects-1.xlsx`.
 3. The dashboard loads your quality data instantly and saves it to local browser storage for future visits.
 
