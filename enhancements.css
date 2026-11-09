@@ -139,13 +139,13 @@ header .primary.upload:hover {
 }
 
 /* Secondary Action Button (Merge Files) */
-header label.upload:not(.primary) {
+header button.upload:not(.primary) {
   background: #f0fdf4;
   border-color: #bbf7d0;
   color: #166534;
 }
 
-header label.upload:not(.primary):hover {
+header button.upload:not(.primary):hover {
   background: #dcfce7;
   border-color: #86efac;
 }
@@ -1453,5 +1453,142 @@ dialog button#closeAnnotation:hover {
   }
   .rc-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+
+/* Keep dashboard controls usable when the available content width shrinks. */
+@media screen {
+  header {
+    flex-wrap: wrap;
+  }
+
+  header .actions, .heading, .chart-tools, .chart-tools select, .tile-slicer {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .heading, .section-top, .page-heading, footer {
+    overflow-wrap: anywhere;
+  }
+
+  .section-top, .page-heading, footer {
+    flex-wrap: wrap;
+  }
+
+  #kpis, #slicers, .adv-grid, #charts {
+    min-width: 0;
+  }
+
+  .adv-grid > *, .kpi, #explorer {
+    min-width: 0;
+  }
+
+  .pagination {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  dialog {
+    max-height: 90dvh;
+    overflow: auto;
+  }
+
+  @media (max-width: 850px) {
+    #sidebar, .collapsed #sidebar {
+      position: static;
+      width: auto;
+      padding: 8px 12px;
+    }
+
+    #nav {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 4px;
+    }
+
+    #nav button {
+      min-height: 44px;
+      margin: 0;
+      padding: 8px;
+    }
+
+    #nav .nav-text {
+      display: inline;
+    }
+
+    #nav .nav-icon {
+      margin-right: 6px;
+    }
+
+    main, .collapsed main {
+      margin-left: 0;
+    }
+
+    #collapse {
+      display: none;
+    }
+
+    header button, header .upload, .tile-option, .pagination button {
+      min-height: 44px;
+    }
+
+    .target-control, .chart-head {
+      flex-wrap: wrap;
+    }
+
+    #kpis {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .empty {
+      padding: 30px 16px;
+    }
+
+    footer span {
+      display: inline;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+[data-theme="dark"] dialog,
+[data-theme="dark"] dialog textarea {
+  color: var(--text-main);
+}
+
+[data-theme="dark"] dialog textarea {
+  background: var(--bg);
+  border-color: var(--card-border);
+}
+
+[data-theme="dark"] #status:not(:empty) {
+  background: #422d14;
+  color: #fef3c7;
+}
+
+button.primary:hover {
+  background: var(--primary-hover);
+  color: white;
+}
+
+.table-scroll:focus-visible,
+tbody tr:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+
+@media screen {
+  .target-control {
+    height: auto;
+    min-height: 38px;
+    padding-block: 5px;
+    max-width: 100%;
+    white-space: normal;
   }
 }
