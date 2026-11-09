@@ -51,7 +51,7 @@ No backend, database, or build step is required. Internet access is only needed 
 ### 2. Pareto 80/20 Rule Analysis
 - Dual-axis chart with **Bar (Defect Count)** on the primary axis (y) and **Line (Cumulative %)** on the secondary axis (y1) reaching 100%.
 - Includes a prominent dashed **80% Cutoff Threshold Line** to instantly pinpoint the "vital few" defect types responsible for 80% of factory scrap.
-- Enabled by default on **Defect-wise count** and switchable on **Defect distribution** and **Defect groups**.
+- Enabled by default on **Defect-wise count** and switchable on **Defect groups** and **Tyre Size defect distribution**.
 
 ### 3. Polar / Clock View for Defect Spotting
 - Defect Spotting reflects angular positions (0°–360°) around the tire circumference.
@@ -99,7 +99,7 @@ No backend, database, or build step is required. Internet access is only needed 
 
 ### Unified Workspaces & Navigation
 The navigation bar is cleanly organized into 4 focused workspaces:
-1. **Dashboard Overview**: Root Cause Assistant, Tire Cross-Section Map, 11 dedicated defect charts, summary KPI cards, and quality uniqueness badge.
+1. **Dashboard Overview**: Root Cause Assistant, Tire Cross-Section Map, 10 dedicated defect charts (redundant duplicate Defect distribution removed in favor of Pareto Defect-wise count drill), summary KPI cards, and quality uniqueness badge.
 2. **Machine Analysis**: Machine × Defect Heatmap Matrix, TBM & Curing machine-wise counts, and machine-defect split distributions.
 3. **SKU & Specification**: Tyre Size Pareto, Green Tyre GT Code breakdown, and SKU defect matrices.
 4. **Data Explorer**: Full defect records table with column sorting, pagination, debounced search across all 16 fields, and CSV/Excel exports.
