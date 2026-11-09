@@ -64,9 +64,10 @@ No backend, database, or build step is required. Internet access is only needed 
 - Displays interactive diagnostic tiles with 1-click drill-down filtering, header badge context, and human-readable diagnostic synthesis takeaways.
 
 ### 5b. Interactive Chart Highlighting & Bar Selection
-- Clicking any bar in the **Defect-wise count** Pareto chart (or other categorical charts) highlights the clicked item in deep blue (`#153f98`) with a high-contrast border.
-- Unselected bars automatically soften to a muted shade (`#93c5fd55`) to clearly emphasize the active filter in view.
-- Re-clicking the selected bar unselects it and restores the default categorical palette.
+- **Defect-wise count Pareto chart**: Styled in clean, uniform single-color blue (`#3674e8cc`) (not multi-color rainbow) with a pink cumulative 80/20 line.
+- **Consistent dark highlighting**: Clicking any bar in Defect-wise count (or any chart across the dashboard) highlights the selected item in dark blue (`#153f98`) with a high-contrast dark border (`#0f295e`, 2.5px width).
+- **Other elements preserve their colors**: When an item is selected, all other items keep their exact same colors without changing or fading.
+- Re-clicking the selected item unselects it and restores the normal border.
 
 ### 6. Interactive Tire Anatomical Cross-Section Map
 - Vector SVG cross-section visualizing defect density across physical tire zones: **Crown / Tread**, **Shoulder**, **Sidewall**, **Bead Area**, and **Innerliner**.

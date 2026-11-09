@@ -781,15 +781,14 @@ function renderCharts() {
         running += p[1];
         return totalSum ? +(running / totalSum * 100).toFixed(1) : 0;
       });
-      const hasAnySelected = selected.size > 0;
       datasets = [
         {
           type: 'bar',
           label: 'Defect records',
           data: pairs.map(p => p[1]),
           yAxisID: 'y',
-          backgroundColor: keys.map((k, i) => selected.has(k) ? '#153f98' : (hasAnySelected ? '#93c5fd55' : palette[i % palette.length] + 'cc')),
-          borderColor: keys.map(k => selected.has(k) ? '#0f295e' : '#ffffff'),
+          backgroundColor: keys.map(k => selected.has(k) ? '#153f98' : '#3674e8cc'),
+          borderColor: keys.map(k => selected.has(k) ? '#0f295e' : '#3674e8'),
           borderWidth: keys.map(k => selected.has(k) ? 2.5 : 1),
           borderRadius: 4
         },
@@ -810,7 +809,9 @@ function renderCharts() {
       datasets = [{
         label: 'Defect records',
         data: pairs.map(p => p[1]),
-        backgroundColor: keys.map((_, i) => palette[i % palette.length] + 'dd')
+        backgroundColor: keys.map((k, i) => selected.has(k) ? '#153f98' : palette[i % palette.length] + 'dd'),
+        borderColor: keys.map(k => selected.has(k) ? '#0f295e' : '#ffffff'),
+        borderWidth: keys.map(k => selected.has(k) ? 3 : 1)
       }];
     } else if (c.split) {
       series = E.group(chartRows, c.split).map(p => p[0]);
@@ -831,16 +832,18 @@ function renderCharts() {
         pointRadius: 3
       }));
     } else {
-      const hasAnySelected = selected.size > 0;
       datasets = [{
         label: 'Defect records',
         data: pairs.map(p => p[1]),
-        backgroundColor: keys.map((k, i) => selected.has(k) ? '#153f98' : round ? palette[i % palette.length] + 'dd' : (hasAnySelected ? '#93c5fd55' : '#4a80e4cc')),
+        backgroundColor: keys.map((k, i) => selected.has(k) ? '#153f98' : round ? palette[i % palette.length] + 'dd' : '#4a80e4cc'),
         borderColor: type === 'line' ? '#3674e8' : keys.map(k => selected.has(k) ? '#0f295e' : '#ffffff'),
-        borderWidth: round ? 2 : keys.map(k => selected.has(k) ? 2.5 : 1),
+        borderWidth: round ? (keys.some(k => selected.has(k)) ? keys.map(k => selected.has(k) ? 3.5 : 1) : 2) : keys.map(k => selected.has(k) ? 2.5 : 1),
         borderRadius: round ? 0 : 4,
         tension: 0.25,
-        pointRadius: 4,
+        pointRadius: type === 'line' ? keys.map(k => selected.has(k) ? 7 : 4) : 4,
+        pointBackgroundColor: type === 'line' ? keys.map(k => selected.has(k) ? '#153f98' : '#3674e8') : undefined,
+        pointBorderColor: type === 'line' ? keys.map(k => selected.has(k) ? '#0f295e' : '#ffffff') : undefined,
+        pointBorderWidth: type === 'line' ? keys.map(k => selected.has(k) ? 2.5 : 1) : 1,
         fill: false
       }];
     }
