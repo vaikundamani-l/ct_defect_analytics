@@ -3,9 +3,9 @@
 ## Client-Side Architecture & Privacy
 
 This application is built with a **100% client-side privacy architecture**:
-- **Data files are maintained locally only**: `CT Defects-1.xlsx` and other raw data files are never committed to GitHub or sent to any remote server (enforced via `.gitignore`).
+- **Data files are maintained locally only**: `CT Defects.xlsx` and other raw data files are never committed to GitHub or sent to any remote server (enforced via `.gitignore`).
 - **Browser-local processing**: All Excel parsing (via SheetJS) and visualization (via Chart.js) occur purely in your browser's memory on your machine.
-- **Offline persistence**: When you choose `CT Defects-1.xlsx`, it is stored in your browser's private local IndexedDB (`CTDefectDB`), allowing the dashboard to remember your data across reloads and offline sessions without external server communication.
+- **Offline persistence**: When you choose `CT Defects.xlsx`, it is stored in your browser's private local IndexedDB (`CTDefectDB`), allowing the dashboard to remember your data across reloads and offline sessions without external server communication.
 
 ## How to Run
 
