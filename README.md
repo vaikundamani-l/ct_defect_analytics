@@ -23,37 +23,63 @@ No backend, database, or build step is required. Internet access is only needed 
 
 ## Included Files (GitHub Repository)
 
-- `index.html`: application shell and layout.
+- `index.html`: application shell, PWA metadata, and layout.
 - `styles.css`: clean manufacturing interface styling.
-- `enhancements.css`: tile slicers and visual styling enhancements.
-- `engine.js`: date normalization, uniqueness enforcement, filtering, aggregation, and export utilities.
-- `app.js`: client-side Excel ingestion, chart rendering, slicer controls, and offline IndexedDB cache management.
+- `enhancements.css`: tile slicers (Year, Month, Shift), quality badge, and `@media print` executive styling.
+- `engine.js`: date normalization, uniqueness enforcement, shift categorization (`Shift A: 06-14`, `Shift B: 14-22`, `Shift C: 22-06`), filtering, aggregation, and export utilities.
+- `app.js`: client-side Excel ingestion, Chart.js rendering (Pareto dual-axis, Polar Clock radial area, single-dimension bars/lines), slicer controls, and offline IndexedDB cache management.
+- `manifest.json`: Web App Manifest for Progressive Web App (PWA) installation.
+- `icon.svg`: vector tire crosshair quality icon.
+- `sw.js`: Service Worker providing offline caching for application shell and CDN dependencies.
+- `.github/workflows/deploy.yml`: automated GitHub Pages deployment workflow on push to `main`.
 - `.gitignore`: ensures Excel workbooks (`*.xlsx`, `*.xls`, `*.csv`) remain local and are never pushed to GitHub.
 - `README.md`: user guide and architecture documentation.
 - `VALIDATION.md`: test results and verified limits.
 
 *(Note: `CT Defects-1.xlsx` is maintained strictly on your local computer).*
 
-## Working with filters
+## Working with filters & Analytics Features
 
-The top filter panel contains only Year and Month count tiles. Year and Month use the Excel `Date` column (column 2); when a row has no valid Date value, its `Xray Date` is used. The dashboard initially selects the current available year and leaves Month unselected. Months show the values available in the selected year. Changing years clears month choices that are no longer available.
+### 1. Dynamic Tile Slicers
+- **Year & Month Slicers**: Visual tile slicers with real-time record counts driven by the Excel `Date` column (column 2; fallback: `Xray Date`).
+- **Shift Analysis Slicer**: Automatically categorizes records into manufacturing shifts based on `TBMTime` and `Curing Time`:
+  - **Shift A (06:00 – 14:00)**: 4,961 records
+  - **Shift B (14:00 – 22:00)**: 4,846 records
+  - **Shift C (22:00 – 06:00)**: 4,820 records
+  Click any shift tile to instantly filter the entire dashboard by shift.
 
-Year and Month are shown as visible tile slicers with record counts. Select a Year first to populate the month-wise defect chart. Before a month is selected, Defect-wise Count shows totals for the selected year; selecting a month narrows it to that month and unlocks Day-wise Defect Count. The Dashboard Overview features an interactive Defect Spotting chart, ranking defect counts by their angular degree positions around the tire (0°–360°) with bar, horizontal bar, pie and doughnut view options. Clicking a day filters all remaining visuals to that day. Ctrl, Shift or Command adds another tile or chart value to the current selection.
+### 2. Pareto 80/20 Rule Analysis
+- Dual-axis chart with **Bar (Defect Count)** on the primary axis (y) and **Line (Cumulative %)** on the secondary axis (y1) reaching 100%.
+- Includes a prominent dashed **80% Cutoff Threshold Line** to instantly pinpoint the "vital few" defect types responsible for 80% of factory scrap.
+- Enabled by default on **Defect-wise count** and switchable on **Defect distribution** and **Defect groups**.
 
-Click a chart segment to select it, then click again to remove it. Ctrl, Shift or Command preserves existing chart selections when adding another visible value. Use slicers to select categories no longer visible after cross-filtering. Chips remove a dimension's selection. Each chart has a clear button; Clear chart selections preserves slicers; Reset filters clears slicers, chart selections and search. Every row in the dashboard is guaranteed unique; duplicate rows are automatically excluded upon import.
+### 3. Polar / Clock View for Defect Spotting
+- Defect Spotting reflects angular positions (0°–360°) around the tire circumference.
+- Rendered natively as a radial **Polar Area Clock Chart**, visualizing spatial defect clusters around the tire.
+
+### 4. Executive Print / PDF Quality Brief
+- Click the **⎙ Print Brief** button in the header (or press `Ctrl+P`) to generate an executive-ready 2-column quality summary.
+- Print stylesheets (`@media print`) hide navigation sidebars, controls, and pagination, producing an immaculate physical or PDF briefing.
+
+### 5. PWA & Offline Installation
+- Fully installable as a standalone desktop application via Chrome/Edge ("Install App").
+- Powered by `sw.js` Service Worker and IndexedDB (`CTDefectDB`), enabling 100% offline usage with zero internet dependency once loaded.
+
+### 6. Automated GitHub Pages CI/CD
+- GitHub Actions workflow (`.github/workflows/deploy.yml`) automatically builds and deploys the dashboard to GitHub Pages on every push to `main`.
 
 ### Unified Dashboard Overview
 The **Dashboard Overview** merges all perspectives from the former Responsibility Analysis and Location Analysis pages into a single, cohesive intelligence center:
 - **11 Dedicated Count Charts** (all clean, non-stacked single-dimension charts with direct numeric data value labels):
   1. Month-wise defect count (drill sequence, wide full width)
   2. Day-wise defect count (drill sequence, line with numeric data points)
-  3. Defect-wise count (drill sequence, top count selector)
-  4. Defect Spotting (angular degree distribution 0°–360°)
+  3. Defect-wise count (Pareto 80/20 dual-axis bar + cumulative % line)
+  4. Defect Spotting (Polar Clock radial degree distribution 0°–360°)
   5. Defect responsibility (horizontal bar with count values)
   6. TBM machine-wise count (bar with count values)
   7. Curing machine code-wise count (horizontal bar with top selector and count values)
-  8. Defect distribution (horizontal bar with top selector)
-  9. Defect groups (bar with top count selector and count values)
+  8. Defect distribution (horizontal bar with top selector, switchable to Pareto)
+  9. Defect groups (bar with top count selector and count values, switchable to Pareto)
   10. Defect area distribution (doughnut chart)
   11. Defect locations (horizontal bar)
 - **Unified Summary Insights**: Highlights top responsibility category, leading TBM machine, leading Curing machine, top defect location, and Year-over-Year comparison in a single header banner.

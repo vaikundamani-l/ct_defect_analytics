@@ -28,6 +28,12 @@ Passed JavaScript syntax checks and DOM integration tests using the actual workb
 - Broken link handling and user prompt verified: when server returns 404, the dashboard catches the failure, displays a clear notification, and renders a prominent "📁 Choose CT Defects-1.xlsx" button to pick the file.
 - Client-side IndexedDB persistence (`CTDefectDB`) verified: stores the full 6,030,443-byte workbook and automatically restores all data offline or when server links are unavailable.
 - Browser `file://` protocol compatibility verified: handles local file system security restrictions gracefully and prompts for file selection.
+- Shift Analysis verified on actual local data (14,627 records): Shift A (06:00–14:00) = 4,961 records; Shift B (14:00–22:00) = 4,846 records; Shift C (22:00–06:00) = 4,820 records; dynamic Shift slicer and cross-filtering tested with 100% data fidelity.
+- Pareto 80/20 Dual-Axis Analysis verified: primary y-axis (Defect records bar) + secondary y1-axis (Cumulative % line starting at 21.7% and reaching 100%) with dashed 80% threshold line; active by default on Defect-wise count and selectable on Defect distribution and Defect groups.
+- Polar Clock Radial View verified: Defect Spotting renders 0°–360° tire circumference angular positions on radial polarArea chart with radial scale `r: { beginAtZero: true }`.
+- Executive Print Layout verified: `#printReport` triggers browser print with `@media print` rules hiding navigation and controls for a pristine 2-column quality summary.
+- PWA & Offline Readiness verified: `manifest.json` parsed, `icon.svg` validated, Service Worker (`sw.js`) precaches shell assets and provides zero-network offline resilience.
+- CI/CD Deployment verified: `.github/workflows/deploy.yml` workflow created for zero-configuration push-to-deploy on GitHub Pages.
 
 Verified using headless Google Chrome with live Canvas rendering, real SheetJS parsing of CT Defects-1.xlsx, DOM interaction tests, and visual screenshot capture.
 
