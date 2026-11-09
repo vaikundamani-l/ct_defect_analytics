@@ -23,7 +23,7 @@
       <small>QUALITY INTELLIGENCE</small>
     </div>
     <p class="nav-label">WORKSPACE</p>
-    <nav id="nav"></nav>
+    <nav id="nav" aria-label="Dashboard sections"></nav>
     <div class="side-footer">
       <span class="live-dot"></span> Browser-local processing
       <small>Your workbook stays on this device.</small>
@@ -36,14 +36,14 @@
     <!-- Header -->
     <header>
       <div class="heading">
-        <button id="collapse" aria-label="Toggle sidebar">☰</button>
+        <button id="collapse" aria-label="Toggle sidebar labels" aria-controls="sidebar" aria-expanded="true">☰</button>
         <div>
           <h1>CT Defect Analytics</h1>
           <p id="source">Manufacturing quality · No workbook loaded</p>
         </div>
       </div>
       <div class="actions">
-        <div class="target-control" title="Set daily defect count threshold">
+        <div class="target-control" hidden title="Average across dates with matching defect records">
           <label for="targetDefects">🎯 Target/day:</label>
           <input id="targetDefects" type="number" min="1" max="5000" value="50">
           <span id="targetBadge" class="target-badge">Within Target</span>
@@ -52,11 +52,11 @@
         <button id="themeToggle" title="Toggle Light / Dark Mode">🌙 Dark</button>
         <button id="printReport" title="Print Executive Quality Brief or save as PDF">⎙ Print Brief</button>
         <button id="reset">↺ Reset filters</button>
-        <label class="primary upload">↑ Upload Excel<input id="upload" type="file" accept=".xlsx,.xls" hidden></label>
+        <button class="primary upload" id="chooseUpload">↑ Upload Excel</button>
+        <input id="upload" type="file" accept=".xlsx,.xls" hidden>
         <!-- Multi-file merge upload -->
-        <label class="upload" title="Upload and merge multiple Excel files">
-          ⊕ Merge Files<input id="mergeUpload" type="file" accept=".xlsx,.xls" multiple hidden>
-        </label>
+        <button class="upload" id="chooseMerge" title="Upload and merge multiple Excel files">⊕ Merge Files</button>
+        <input id="mergeUpload" type="file" accept=".xlsx,.xls" multiple hidden>
       </div>
     </header>
 
@@ -64,10 +64,10 @@
     <div id="status" role="status" aria-live="polite"></div>
 
     <!-- Filter Panel -->
-    <section class="filter-panel">
+    <section class="filter-panel" hidden>
       <div class="section-top">
         <strong>Report filters</strong>
-        <span>TBMDate is the primary analysis date</span>
+        <span>Analysis uses Date, with Xray Date as a fallback</span>
         <button id="clearCharts">Clear chart selections</button>
       </div>
       <div id="slicers"></div>
@@ -84,7 +84,7 @@
     </div>
 
     <!-- KPIs -->
-    <section id="kpis"></section>
+    <section id="kpis" hidden></section>
 
     <!-- Quality Summary -->
     <section id="quality"></section>
@@ -97,8 +97,7 @@
         Open CT Defects-1.xlsx (or any Excel file with the same columns) to explore defects, machines and responsibility.<br>
         Only the 16 specified fields in DefectReport are read. No sample data is used.
       </p>
-      <div id="welcomeNotice"></div>
-      <label class="primary upload">Choose workbook<input type="file" class="welcome-upload" accept=".xlsx,.xls" hidden></label>
+        <button class="primary" id="chooseWelcome">Choose workbook</button>
       <p class="muted">Internet is required to load Chart.js and SheetJS. Data processing stays in your browser.</p>
     </section>
 
@@ -108,14 +107,14 @@
     <!-- Trend Badges are shown inside KPI cards via JS, no new section needed -->
 
     <!-- Saved Filter Presets Dialog -->
-    <dialog id="presetsDialog">
+    <dialog id="presetsDialog" aria-labelledby="presetsTitle">
       <div class="section-top">
-        <h2>📑 Saved Filter Presets</h2>
+        <h2 id="presetsTitle">📑 Saved Filter Presets</h2>
         <button id="closePresets">Close ✕</button>
       </div>
       <div class="presets-content">
         <div class="preset-save-form">
-          <input id="presetName" type="text" placeholder="Name this filter preset..." maxlength="50">
+          <input id="presetName" aria-label="Preset name" type="text" placeholder="Name this filter preset..." maxlength="50">
           <button id="savePreset" class="primary">💾 Save Current</button>
         </div>
         <div id="presetsList" class="presets-list"></div>
@@ -297,7 +296,7 @@
           <h3>Defect records</h3>
           <p id="tableCount"></p>
         </div>
-        <input id="search" placeholder="Search all 16 fields…" aria-label="Search records">
+        <input id="search" placeholder="Search defect records…" aria-label="Search records">
         <select id="pageSize" aria-label="Rows per page">
           <option>25</option>
           <option>50</option>
@@ -308,7 +307,7 @@
         <button id="csv">Export CSV</button>
         <button id="excel">Export Excel</button>
       </div>
-      <div class="table-scroll">
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable defect records">
         <table>
           <thead id="thead"></thead>
           <tbody id="tbody"></tbody>
@@ -329,31 +328,31 @@
   <!-- ===== Dialogs ===== -->
 
   <!-- Record Detail Dialog -->
-  <dialog id="detail">
+  <dialog id="detail" aria-labelledby="detailTitle">
     <div class="section-top">
-      <h2>Record details</h2>
+      <h2 id="detailTitle">Record details</h2>
       <button id="closeDetail">Close ✕</button>
     </div>
     <dl id="detailFields"></dl>
   </dialog>
 
   <!-- Column Visibility Dialog -->
-  <dialog id="colDialog">
+  <dialog id="colDialog" aria-labelledby="columnsTitle">
     <div class="section-top">
-      <h2>👁 Column Visibility</h2>
+      <h2 id="columnsTitle">👁 Column Visibility</h2>
       <button id="closeColDialog">Close ✕</button>
     </div>
     <div id="colCheckboxes" class="col-checkboxes"></div>
   </dialog>
 
   <!-- Annotation Dialog -->
-  <dialog id="annotationDialog">
+  <dialog id="annotationDialog" aria-labelledby="annotationTitle">
     <div class="section-top">
-      <h2>📝 Data Annotations</h2>
+      <h2 id="annotationTitle">📝 Data Annotations</h2>
       <button id="closeAnnotation">Close ✕</button>
     </div>
     <div class="annotation-content">
-      <textarea id="annotationText" rows="4" placeholder="Add a note for this record..."></textarea>
+      <textarea id="annotationText" aria-label="Record note" rows="4" placeholder="Add a note for this record..."></textarea>
       <button id="saveAnnotation" class="primary">Save Note</button>
       <div id="annotationsList"></div>
     </div>
@@ -361,3 +360,4 @@
 
 </body>
 </html>
+
