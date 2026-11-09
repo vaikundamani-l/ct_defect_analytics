@@ -2059,6 +2059,26 @@ for (const [buttonId, inputId] of [['chooseUpload', 'upload'], ['chooseWelcome',
   };
 }
 
+// Keyboard Shortcuts & Accessibility
+window.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('dialog[open]').forEach(d => d.close());
+  }
+  if (state.loaded && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+    if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') return;
+    if (e.key === 'ArrowLeft' && state.tablePage > 1) {
+      state.tablePage--;
+      renderTable();
+    } else if (e.key === 'ArrowRight') {
+      const maxPages = Math.ceil(state.filtered.length / state.pageSize);
+      if (state.tablePage < maxPages) {
+        state.tablePage++;
+        renderTable();
+      }
+    }
+  }
+});
+
 renderSlicers();
 mountCharts();
 render();
