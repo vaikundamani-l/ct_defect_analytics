@@ -27,11 +27,12 @@ function rootCause(rows,defectName){if(!rows.length)return null;const topDefects
 function heatmap(rows,machineField='TBMMachine ID',defectField='Defect Name',topMachines=10,topDefects=8){const machines=group(rows,machineField).slice(0,topMachines).map(p=>p[0]),defects=group(rows,defectField).slice(0,topDefects).map(p=>p[0]),matrix={};let maxVal=0;machines.forEach(m=>{matrix[m]={};defects.forEach(d=>{matrix[m][d]=0;});});rows.forEach(r=>{const m=r[machineField],d=r[defectField];if(m&&d&&matrix[m]&&matrix[m][d]!==undefined){matrix[m][d]++;if(matrix[m][d]>maxVal)maxVal=matrix[m][d];}});return {machines,defects,matrix,maxVal};}
 function getTireZoneStats(rows){const counts={Crown:0,Shoulder:0,Sidewall:0,Bead:0,Innerliner:0,Other:0};rows.forEach(r=>{const t=((r['Defect Area']||'')+' '+(r['Defect Location']||'')).toLowerCase();if(t.includes('crown')||t.includes('tread'))counts.Crown++;else if(t.includes('shoulder'))counts.Shoulder++;else if(t.includes('sidewall'))counts.Sidewall++;else if(t.includes('bead'))counts.Bead++;else if(t.includes('inner')||t.includes('liner')||t.includes('carcass'))counts.Innerliner++;else counts.Other++;});const total=rows.length||1;return Object.fromEntries(Object.entries(counts).map(([k,v])=>[k,{count:v,pct:+(v/total*100).toFixed(1)}]));}
 /* ── trendBadges: Month-over-Month Trend Calculation ── */
-function trendBadges(rows, slicers) {
+function trendBadges(rows, slicers, otherFilters) {
  if (!rows || !rows.length) return null;
  var sl = slicers || {};
- var selectedMonth = sl._month && sl._month.size === 1 ? [...sl._month][0] : null;
- var selectedYear = sl._year && sl._year.size === 1 ? [...sl._year][0] : null;
+ var of = otherFilters || {};
+ var selectedMonth = sl._month && sl._month.size === 1 ? [...sl._month][0] : (of._month && of._month.size === 1 ? [...of._month][0] : null);
+ var selectedYear = sl._year && sl._year.size === 1 ? [...sl._year][0] : (of._year && of._year.size === 1 ? [...of._year][0] : null);
  var curRows, prevRows;
  if (selectedMonth && selectedYear) {
   var curM = +selectedMonth, curY = +selectedYear;
@@ -50,6 +51,21 @@ function trendBadges(rows, slicers) {
   prevRows = rows.filter(function(r){ return r._period === prevP; });
  }
  if (!prevRows.length) return null;
+
+ if (of && Object.keys(of).length) {
+  function matchFilters(r) {
+   for (var f in of) {
+    if (f === '_month' || f === '_year' || f === '_period' || f === '_day') continue;
+    var s = of[f];
+    if (s && s.size && !s.has(r[f])) return false;
+   }
+   return true;
+  }
+  curRows = curRows.filter(matchFilters);
+  prevRows = prevRows.filter(matchFilters);
+ }
+ if (!prevRows.length || !curRows.length) return null;
+
  function pctChange(cur, prev) { return prev === 0 ? (cur > 0 ? 100 : 0) : +((cur - prev) / prev * 100).toFixed(1); }
  var curBarcodes = new Set(curRows.map(function(r){ return r.Barcode; }).filter(Boolean)).size;
  var prevBarcodes = new Set(prevRows.map(function(r){ return r.Barcode; }).filter(Boolean)).size;
@@ -160,11 +176,12 @@ function machineHealth(rows, machineField, topN) {
 }
 
 /* ── paretoProgress: Pareto Progress Tracking ── */
-function paretoProgress(rows, slicers) {
+function paretoProgress(rows, slicers, otherFilters) {
  if (!rows || !rows.length) return null;
  var sl = slicers || {};
- var selectedMonth = sl._month && sl._month.size === 1 ? [...sl._month][0] : null;
- var selectedYear = sl._year && sl._year.size === 1 ? [...sl._year][0] : null;
+ var of = otherFilters || {};
+ var selectedMonth = sl._month && sl._month.size === 1 ? [...sl._month][0] : (of._month && of._month.size === 1 ? [...of._month][0] : null);
+ var selectedYear = sl._year && sl._year.size === 1 ? [...sl._year][0] : (of._year && of._year.size === 1 ? [...of._year][0] : null);
  var curRows, prevRows;
  if (selectedMonth && selectedYear) {
   var curM = +selectedMonth, curY = +selectedYear;
@@ -182,12 +199,27 @@ function paretoProgress(rows, slicers) {
   prevRows = rows.filter(function(r){ return r._period === prevP; });
  }
  if (!prevRows.length || !curRows.length) return null;
+
+ if (of && Object.keys(of).length) {
+  function matchFilters(r) {
+   for (var f in of) {
+    if (f === 'Defect Name' || f === '_month' || f === '_year' || f === '_period' || f === '_day') continue;
+    var s = of[f];
+    if (s && s.size && !s.has(r[f])) return false;
+   }
+   return true;
+  }
+  curRows = curRows.filter(matchFilters);
+  prevRows = prevRows.filter(matchFilters);
+ }
+ if (!prevRows.length || !curRows.length) return null;
+
  var prevGroup = group(prevRows, 'Defect Name').slice(0, 5);
  var curGroupMap = new Map(group(curRows, 'Defect Name'));
  return prevGroup.map(function(pair){
   var defect = pair[0], prevCount = pair[1];
   var curCount = curGroupMap.get(defect) || 0;
-  var change = prevCount > 0 ? +((curCount - prevCount) / prevCount * 100).toFixed(1) : 0;
+  var change = prevCount > 0 ? +((curCount - prevCount) / prevCount * 100).toFixed(1) : (curCount > 0 ? 100 : 0);
   return { defect: defect, prevCount: prevCount, curCount: curCount, change: change, improved: curCount < prevCount };
  });
 }

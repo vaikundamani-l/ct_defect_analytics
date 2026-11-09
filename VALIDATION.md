@@ -51,9 +51,9 @@ Passed JavaScript syntax checks and DOM integration tests using the actual workb
 - Comprehensive Advanced Quality Suite verified on local 14,627 records:
   - KPI Trend Badges (Period-over-Period % change) verified: renders dynamic ↑/↓ badges comparing current period against previous.
   - Automated Quality Period Summary verified: synthesizes key events, top defects, and SPC stability highlights.
-  - Repeat Offender Machine Detection verified: flags machinery exceeding average concentration with CRITICAL/WARNING/WATCH badges; clicking an offender isolates the machine and defect and automatically dismisses/removes it from the active offender list (with restore option).
-  - Machine Health Scoring verified: composite quality score (0–100) and letter grades (A–F) with trend indicators.
-  - Quality Period Summary & Pareto Progress Tracker Layout verified: combined into a side-by-side single row grid layout (`#summaryParetoSection`).
+  - Repeat Offender Machine Detection verified: flags machinery exceeding average concentration with CRITICAL/WARNING/WATCH badges; clicking an offender isolates the machine and defect and automatically dismisses that specific offender while keeping the remaining repeat offenders visible in the list; includes 1-click "👁️ Hide list" / "Show list" toggle.
+  - Machine Health Scoring verified: composite quality score (0–100) and letter grades (A–F) with trend indicators; supports toggleable card selection (`.selected`), maintains visibility of all machine cards during single-machine isolation, and dynamically updates scores when defects or areas are clicked elsewhere.
+  - Pareto Progress Tracker verified: tracks vital-few defect trajectories across periods, dynamically updates when other charts (machines, areas, months) are clicked, and supports toggleable defect row clicks with active visual indicators (`.selected`).
   - Report Filters Width Ratio verified: Year filter tile sized to 20% and Month filter tile sized to 70% of the report filters container width.
   - Factory Quality Scorecard removed completely from DOM and runtime execution per user specification.
   - Cumulative Defect Tracker verified: running cumulative defect total vs target curves.

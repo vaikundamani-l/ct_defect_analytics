@@ -65,7 +65,8 @@ const state = {
   cumulativeInstance: null,
   velocityInstance: null,
   activeDetailRecord: null,
-  dismissedOffenders: new Set()
+  dismissedOffenders: new Set(),
+  hideOffendersList: false
 };
 window.state = state;
 
@@ -166,6 +167,7 @@ function reset() {
   state.tablePage = 1;
   state.dedupe = true;
   state.dismissedOffenders = new Set();
+  state.hideOffendersList = false;
   if (state.loaded) defaultDateFocus();
   renderSlicers();
   render();
@@ -932,7 +934,7 @@ function render() {
   // KPIs with Trend Badges (Feature #1)
   const values = E.kpis(state.filtered);
   const names = ['Total Defect Records', 'Unique Defect Barcodes', 'Total Defect Names', 'Total Defect Groups', 'Total Defect Areas', 'Total Responsible Categories'];
-  const trends = state.loaded ? E.trendBadges(state.rows, state.slicers) : null;
+  const trends = state.loaded ? E.trendBadges(state.rows, state.slicers, state.charts) : null;
 
   $('kpis').innerHTML = names.map((n, i) => {
     let trendHtml = '';
@@ -1056,8 +1058,7 @@ if ($('rootCauseBody')) {
     const t = e.target.closest('.rc-tile');
     if (t) {
       const f = t.dataset.field, v = t.dataset.val;
-      state.charts[f] = new Set([v]);
-      render();
+      selectChart(f, v);
     }
   };
 }
@@ -1191,8 +1192,23 @@ function renderWeeklySummary() {
 function renderRepeatOffenders() {
   if (!state.loaded || state.page !== 0) return;
   if (!state.dismissedOffenders) state.dismissedOffenders = new Set();
-  const rawOffenders = E.repeatOffenders(state.filtered, 'TBMMachine ID', 15);
+
+  if (state.hideOffendersList) {
+    $('repeatOffenderBody').innerHTML = `<p class="muted">Repeat offender list is hidden. <button id="restoreOffendersListBtn" style="font-size:11px;padding:3px 8px;margin-left:8px;cursor:pointer;background:var(--primary);color:#fff;border:none;border-radius:4px;">Show list</button></p>`;
+    const btn = $('restoreOffendersListBtn');
+    if (btn) btn.onclick = () => { state.hideOffendersList = false; renderRepeatOffenders(); };
+    return;
+  }
+
+  // Calculate repeat offenders on period & query without self-filtering on machine/defect,
+  // so clicking an offender does not wipe out all other offenders from the list!
+  const baseCharts = { ...state.charts };
+  delete baseCharts['TBMMachine ID'];
+  delete baseCharts['Defect Name'];
+  const offenderRows = E.filter(state.rows, state.slicers, baseCharts, state.query, state.dedupe);
+  const rawOffenders = E.repeatOffenders(offenderRows, 'TBMMachine ID', 25);
   const offenders = rawOffenders.filter(o => !state.dismissedOffenders.has(o.machine + '\u0000' + o.defect)).slice(0, 6);
+
   if (!offenders.length) {
     const hiddenCount = state.dismissedOffenders.size;
     const msg = hiddenCount > 0
@@ -1203,33 +1219,54 @@ function renderRepeatOffenders() {
     if (btn) btn.onclick = () => { state.dismissedOffenders.clear(); renderRepeatOffenders(); };
     return;
   }
-  let html = `<table class="offender-table"><thead><tr><th>Machine</th><th>Defect Name</th><th>Count</th><th>Avg/Machine</th><th>Concentration</th><th>Risk Level</th></tr></thead><tbody>`;
+
+  const activeMachine = state.charts['TBMMachine ID'] && [...state.charts['TBMMachine ID']][0];
+  const activeDefect = state.charts['Defect Name'] && [...state.charts['Defect Name']][0];
+
+  let html = `<div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+    <button id="hideOffendersListBtn" style="font-size:11px;padding:2px 8px;cursor:pointer;background:transparent;border:1px solid var(--card-border);color:var(--text-muted);border-radius:4px;" title="Hide entire repeat offenders list">👁️ Hide list</button>
+  </div>`;
+  html += `<table class="offender-table"><thead><tr><th>Machine</th><th>Defect Name</th><th>Count</th><th>Avg/Machine</th><th>Concentration</th><th>Risk Level</th><th>Action</th></tr></thead><tbody>`;
   offenders.forEach(o => {
+    const isSel = (activeMachine === o.machine && activeDefect === o.defect);
     const risk = o.ratio >= 2.5 ? 'critical' : o.ratio >= 1.7 ? 'warning' : 'watch';
     const riskLabel = o.ratio >= 2.5 ? 'CRITICAL' : o.ratio >= 1.7 ? 'WARNING' : 'WATCH';
-    html += `<tr style="cursor:pointer;" data-machine="${escapeHTML(o.machine)}" data-defect="${escapeHTML(o.defect)}" title="Click to filter by ${escapeHTML(o.machine)} and ${escapeHTML(o.defect)} (removes from list)">
-      <td><strong>${escapeHTML(o.machine)}</strong></td>
+    html += `<tr class="${isSel ? 'selected' : ''}" style="cursor:pointer;" data-machine="${escapeHTML(o.machine)}" data-defect="${escapeHTML(o.defect)}" title="Click to filter by ${escapeHTML(o.machine)} and ${escapeHTML(o.defect)} (removes from list)">
+      <td><strong>${escapeHTML(o.machine)}</strong>${isSel ? ' <small style="color:var(--primary);font-weight:bold;">(Active)</small>' : ''}</td>
       <td>${escapeHTML(o.defect)}</td>
       <td><strong>${fmt(o.count)}</strong></td>
       <td>${fmt(o.avgForDefect)}</td>
       <td><span style="font-weight:700;color:${o.ratio >= 2.5 ? '#ef4444' : '#f59e0b'};">${o.ratio}x</span></td>
       <td><span class="offender-badge ${risk}">${riskLabel}</span></td>
+      <td><button class="dismiss-offender-btn" data-machine="${escapeHTML(o.machine)}" data-defect="${escapeHTML(o.defect)}" title="Remove this offender from list" style="font-size:11px;padding:2px 6px;cursor:pointer;background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:4px;">✕ Remove</button></td>
     </tr>`;
   });
   html += '</tbody></table>';
   $('repeatOffenderBody').innerHTML = html;
+
+  const hideBtn = $('hideOffendersListBtn');
+  if (hideBtn) hideBtn.onclick = () => { state.hideOffendersList = true; renderRepeatOffenders(); };
 }
 
 if ($('repeatOffenderBody')) {
   $('repeatOffenderBody').onclick = e => {
+    const dismissBtn = e.target.closest('.dismiss-offender-btn');
+    if (dismissBtn) {
+      e.stopPropagation();
+      const m = dismissBtn.dataset.machine, d = dismissBtn.dataset.defect;
+      if (!state.dismissedOffenders) state.dismissedOffenders = new Set();
+      state.dismissedOffenders.add(m + '\u0000' + d);
+      renderRepeatOffenders();
+      return;
+    }
+
     const tr = e.target.closest('tr[data-machine]');
     if (tr) {
       const m = tr.dataset.machine, d = tr.dataset.defect;
       if (!state.dismissedOffenders) state.dismissedOffenders = new Set();
       state.dismissedOffenders.add(m + '\u0000' + d);
-      state.charts['TBMMachine ID'] = new Set([m]);
-      state.charts['Defect Name'] = new Set([d]);
-      render();
+      selectChart('TBMMachine ID', m);
+      selectChart('Defect Name', d);
     }
   };
 }
@@ -1238,16 +1275,24 @@ if ($('repeatOffenderBody')) {
 function renderMachineHealth() {
   if (!state.loaded || state.page !== 0) return;
   const machineField = $('healthMachineType')?.value || 'TBMMachine ID';
-  const healthList = E.machineHealth(state.filtered, machineField, 8);
+
+  // Compute health on rows respecting slicers, query, dedupe, and other chart filters EXCEPT machineField itself.
+  // This ensures other machine cards remain visible and comparable when one machine is selected.
+  const healthCharts = { ...state.charts };
+  delete healthCharts[machineField];
+  const healthRows = E.filter(state.rows, state.slicers, healthCharts, state.query, state.dedupe);
+  const healthList = E.machineHealth(healthRows, machineField, 8);
   if (!healthList || !healthList.length) {
-    $('machineHealthBody').innerHTML = '<p class="muted">No machine data available.</p>';
+    $('machineHealthBody').innerHTML = '<p class="muted">No machine data available for current selection.</p>';
     return;
   }
+  const selectedMachine = state.charts[machineField] && [...state.charts[machineField]][0];
   let html = '<div class="health-grid">';
   healthList.forEach(m => {
+    const isSel = selectedMachine === m.machine;
     const trendIcon = m.trend === 'improving' ? '📈 Improving' : m.trend === 'worsening' ? '📉 Worsening' : '➡️ Stable';
-    html += `<div class="health-card" style="cursor:pointer;" data-field="${escapeHTML(machineField)}" data-machine="${escapeHTML(m.machine)}" title="Click to filter by ${escapeHTML(m.machine)}">
-      <div class="health-label">${escapeHTML(m.machine)}</div>
+    html += `<div class="health-card ${isSel ? 'selected' : ''}" style="cursor:pointer;" data-field="${escapeHTML(machineField)}" data-machine="${escapeHTML(m.machine)}" title="${isSel ? 'Click to unselect ' + escapeHTML(m.machine) : 'Click to filter by ' + escapeHTML(m.machine)}">
+      <div class="health-label">${escapeHTML(m.machine)}${isSel ? ' <span style="color:var(--primary);font-weight:bold;">✓ Active</span>' : ''}</div>
       <div class="health-score">${m.score}<small style="font-size:12px;font-weight:400;">/100</small></div>
       <div><span class="health-grade ${m.grade}">Grade ${m.grade}</span></div>
       <div class="health-detail">${fmt(m.totalDefects)} defects · ${m.uniqueDefects} types</div>
@@ -1265,8 +1310,7 @@ if ($('machineHealthBody')) {
     const card = e.target.closest('.health-card');
     if (card) {
       const f = card.dataset.field, m = card.dataset.machine;
-      state.charts[f] = new Set([m]);
-      render();
+      selectChart(f, m);
     }
   };
 }
@@ -1274,18 +1318,20 @@ if ($('machineHealthBody')) {
 // Pareto Progress Tracking (Feature #10)
 function renderParetoProgress() {
   if (!state.loaded || state.page !== 0) return;
-  const prog = E.paretoProgress(state.rows, state.slicers);
+  const prog = E.paretoProgress(state.rows, state.slicers, state.charts);
   if (!prog || !prog.length) {
     $('paretoProgressBody').innerHTML = '<p class="muted">Select a specific month or year with an immediately preceding period to track Pareto progress.</p>';
     return;
   }
+  const selectedDefect = state.charts['Defect Name'] && [...state.charts['Defect Name']][0];
   let html = `<table class="pareto-progress"><thead><tr><th>Top Defect (Prior Period)</th><th>Prior Count</th><th>Current Count</th><th>Change %</th><th>Status</th></tr></thead><tbody>`;
   prog.forEach(p => {
+    const isSel = selectedDefect === p.defect;
     const arrow = p.improved ? '↓' : '↑';
     const cls = p.improved ? 'improved' : 'worsened';
     const statusText = p.improved ? '✓ Improved' : '⚠️ Worsened';
-    html += `<tr style="cursor:pointer;" data-defect="${escapeHTML(p.defect)}" title="Click to filter by ${escapeHTML(p.defect)}">
-      <td><strong>${escapeHTML(p.defect)}</strong></td>
+    html += `<tr class="${isSel ? 'selected' : ''}" style="cursor:pointer;" data-defect="${escapeHTML(p.defect)}" title="${isSel ? 'Click to unselect ' + escapeHTML(p.defect) : 'Click to filter by ' + escapeHTML(p.defect)}">
+      <td><strong>${escapeHTML(p.defect)}</strong>${isSel ? ' <small style="color:var(--primary);font-weight:bold;">(Active Filter)</small>' : ''}</td>
       <td>${fmt(p.prevCount)}</td>
       <td><strong>${fmt(p.curCount)}</strong></td>
       <td><span class="progress-arrow ${cls}">${arrow} ${Math.abs(p.change)}%</span></td>
@@ -1300,8 +1346,7 @@ if ($('paretoProgressBody')) {
   $('paretoProgressBody').onclick = e => {
     const tr = e.target.closest('tr[data-defect]');
     if (tr) {
-      state.charts['Defect Name'] = new Set([tr.dataset.defect]);
-      render();
+      selectChart('Defect Name', tr.dataset.defect);
     }
   };
 }

@@ -669,6 +669,15 @@ header button.upload:not(.primary):hover {
   background: #f1f5fd;
 }
 
+.offender-table tr.selected td {
+  background: rgba(37, 99, 235, 0.12) !important;
+  font-weight: 600;
+}
+
+.offender-table tr.selected td:first-child {
+  border-left: 3px solid var(--primary);
+}
+
 .offender-badge {
   display: inline-flex;
   align-items: center;
@@ -719,6 +728,12 @@ header button.upload:not(.primary):hover {
   border-color: var(--primary);
   transform: translateY(-2px);
   box-shadow: var(--shadow-sm);
+}
+
+.health-card.selected {
+  border-color: var(--primary) !important;
+  background: rgba(37, 99, 235, 0.08) !important;
+  box-shadow: 0 0 0 2px var(--primary);
 }
 
 .health-label {
@@ -782,6 +797,15 @@ header button.upload:not(.primary):hover {
 
 .pareto-progress tr:hover td {
   background: #f1f5fd;
+}
+
+.pareto-progress tr.selected td {
+  background: rgba(37, 99, 235, 0.12) !important;
+  font-weight: 600;
+}
+
+.pareto-progress tr.selected td:first-child {
+  border-left: 3px solid var(--primary);
 }
 
 .progress-arrow {
@@ -1314,9 +1338,30 @@ dialog button#closeAnnotation:hover {
   color: #94a3b8;
 }
 
+[data-theme="dark"] .offender-table tr:hover td,
+[data-theme="dark"] .pareto-progress tr:hover td {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="dark"] .offender-table tr.selected td,
+[data-theme="dark"] .pareto-progress tr.selected td {
+  background: rgba(37, 99, 235, 0.25) !important;
+}
+
+[data-theme="dark"] .offender-table tr.selected td:first-child,
+[data-theme="dark"] .pareto-progress tr.selected td:first-child {
+  border-left-color: #60a5fa;
+}
+
 [data-theme="dark"] .health-card {
   background: #172033;
   border-color: #26354e;
+}
+
+[data-theme="dark"] .health-card.selected {
+  border-color: #60a5fa !important;
+  background: rgba(37, 99, 235, 0.22) !important;
+  box-shadow: 0 0 0 2px #60a5fa;
 }
 
 [data-theme="dark"] .health-score {
