@@ -435,13 +435,23 @@ header button.upload:not(.primary):hover {
 }
 
 /* ── Period Summary Highlights (Weekly / Monthly Narrative) ── */
+#weeklySummarySection,
+#scorecardSection {
+  margin-bottom: 18px;
+}
+
+#weeklySummarySection > .card,
+#scorecardSection > .card {
+  padding: 20px;
+}
+
 .weekly-summary-content {
   padding: 4px 0 6px;
 }
 
 .summary-highlights {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
   gap: 10px;
 }
 
@@ -769,7 +779,7 @@ header button.upload:not(.primary):hover {
   align-items: center;
   gap: 28px;
   flex-wrap: wrap;
-  padding: 10px;
+  padding: 0;
 }
 
 .scorecard-main {
@@ -793,7 +803,7 @@ header button.upload:not(.primary):hover {
 
 .scorecard-factors {
   flex: 1;
-  min-width: 240px;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -821,7 +831,8 @@ header button.upload:not(.primary):hover {
 }
 
 .factor-label {
-  min-width: 130px;
+  flex: 0 1 130px;
+  min-width: 0;
   font-weight: 600;
   color: var(--text-muted);
 }
@@ -1440,6 +1451,12 @@ dialog button#closeAnnotation:hover {
 }
 
 @media (max-width: 600px) {
+  .scorecard-wrap {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
   #kpis {
     grid-template-columns: 1fr;
   }
