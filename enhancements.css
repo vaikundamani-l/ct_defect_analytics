@@ -236,18 +236,32 @@ header button.upload:not(.primary):hover {
   letter-spacing: -0.2px;
 }
 
+#slicers {
+  display: grid !important;
+  grid-template-columns: 20% 70% !important;
+  gap: 14px;
+  width: 100%;
+}
+
 .tile-slicer {
-  grid-column: span 2;
   min-width: 0;
   padding: 12px 14px;
   background: #f8fafc;
   border: 1px solid var(--card-border);
   border-radius: var(--radius-md);
   transition: var(--transition);
+  box-sizing: border-box;
 }
 
-.tile-slicer.year-slicer { grid-column: span 1; }
-.tile-slicer.month-slicer { grid-column: span 5; }
+.tile-slicer.year-slicer {
+  grid-column: 1 !important;
+  width: 100% !important;
+}
+
+.tile-slicer.month-slicer {
+  grid-column: 2 !important;
+  width: 100% !important;
+}
 
 .tile-title {
   display: flex;
@@ -434,15 +448,19 @@ header button.upload:not(.primary):hover {
   border: 1px solid #e2e8f0;
 }
 
-/* ── Period Summary Highlights (Weekly / Monthly Narrative) ── */
-#weeklySummarySection,
-#scorecardSection {
-  margin-bottom: 18px;
+/* ── Period Summary & Pareto Progress (Single-Row Grid) ── */
+#summaryParetoSection {
+  margin-bottom: 20px;
 }
 
-#weeklySummarySection > .card,
-#scorecardSection > .card {
-  padding: 20px;
+#summaryParetoSection .adv-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#summaryParetoSection .adv-card .chart-head {
+  margin-bottom: 12px;
 }
 
 .weekly-summary-content {
@@ -772,77 +790,6 @@ header button.upload:not(.primary):hover {
 
 .progress-arrow.improved { color: #15803d; }
 .progress-arrow.worsened { color: #dc2626; }
-
-/* ── Factory Quality Scorecard ── */
-.scorecard-wrap {
-  display: flex;
-  align-items: center;
-  gap: 28px;
-  flex-wrap: wrap;
-  padding: 0;
-}
-
-.scorecard-main {
-  text-align: center;
-  min-width: 140px;
-}
-
-.scorecard-value {
-  font-size: 54px;
-  font-weight: 900;
-  line-height: 1;
-  letter-spacing: -2px;
-}
-
-.scorecard-grade {
-  font-size: 18px;
-  font-weight: 800;
-  margin-top: 4px;
-  letter-spacing: -0.3px;
-}
-
-.scorecard-factors {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.factor-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 12px;
-}
-
-.factor-bar {
-  flex: 1;
-  height: 9px;
-  background: #e2e8f0;
-  border-radius: var(--radius-full);
-  overflow: hidden;
-}
-
-.factor-fill {
-  height: 100%;
-  border-radius: var(--radius-full);
-  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.factor-label {
-  flex: 0 1 130px;
-  min-width: 0;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-.factor-value {
-  min-width: 44px;
-  text-align: right;
-  font-weight: 800;
-  color: var(--text-main);
-}
 
 /* ── Machine × Defect Heatmap Matrix ── */
 .heatmap-table {
@@ -1451,12 +1398,6 @@ dialog button#closeAnnotation:hover {
 }
 
 @media (max-width: 600px) {
-  .scorecard-wrap {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 16px;
-  }
-
   #kpis {
     grid-template-columns: 1fr;
   }

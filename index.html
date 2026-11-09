@@ -122,29 +122,28 @@
     </dialog>
 
     <!-- Weekly Summary Section (Dashboard Overview page 0) -->
-    <section id="weeklySummarySection" hidden>
-      <article class="card">
-        <div class="chart-head">
-          <div>
-            <h3>📋 Quality Period Summary</h3>
-            <p>Auto-generated key findings and highlights for the selected filters</p>
+    <!-- Quality Period Summary & Pareto Progress Tracker in single row -->
+    <section id="summaryParetoSection" hidden>
+      <div class="adv-grid">
+        <article class="card adv-card" id="card-weeklySummary">
+          <div class="chart-head">
+            <div>
+              <h3>📋 Quality Period Summary</h3>
+              <p>Auto-generated key findings and highlights for the selected filters</p>
+            </div>
           </div>
-        </div>
-        <div id="weeklySummaryBody" class="weekly-summary-content"></div>
-      </article>
-    </section>
-
-    <!-- Factory Quality Scorecard (visible on Dashboard Overview page 0) -->
-    <section id="scorecardSection" hidden>
-      <article class="card">
-        <div class="chart-head">
-          <div>
-            <h3>🏆 Factory Quality Scorecard</h3>
-            <p>Composite quality index across multiple dimensions</p>
+          <div id="weeklySummaryBody" class="weekly-summary-content"></div>
+        </article>
+        <article class="card adv-card" id="card-paretoProgress">
+          <div class="chart-head">
+            <div>
+              <h3>📊 Pareto Progress Tracker</h3>
+              <p>Are the "vital few" defects from last period improving?</p>
+            </div>
           </div>
-        </div>
-        <div id="scorecardBody"></div>
-      </article>
+          <div id="paretoProgressBody"></div>
+        </article>
+      </div>
     </section>
 
     <!-- Advanced Visuals -->
@@ -202,19 +201,6 @@
           <div id="machineHealthBody"></div>
         </article>
       </div>
-    </section>
-
-    <!-- Pareto Progress Section (Dashboard Overview page 0) -->
-    <section id="paretoProgressSection" hidden>
-      <article class="card">
-        <div class="chart-head">
-          <div>
-            <h3>📊 Pareto Progress Tracker</h3>
-            <p>Are the "vital few" defects from last period improving?</p>
-          </div>
-        </div>
-        <div id="paretoProgressBody"></div>
-      </article>
     </section>
 
     <!-- Heatmap Section -->

@@ -107,38 +107,35 @@ No backend, database, or build step is required. Internet access is only needed 
 - Assigns letter grades (`Grade A` to `Grade F`) and trend indicators (`📈 Improving`, `📉 Worsening`, `➡️ Stable`). Switchable between TBM and Curing machinery.
 
 ### 15. Pareto Progress Tracker
-- Tracks month-over-month performance of the historical "vital few" top 5 defect categories to verify whether corrective actions actually reduced defects.
+- Tracks month-over-month performance of the historical "vital few" top 5 defect categories to verify whether corrective actions actually reduced defects. Side-by-side with Quality Period Summary in an aligned single-row layout.
 
-### 16. Factory Quality Scorecard (Composite Index)
-- Single composite quality metric (0–100) combining **Machine Spread Entropy** (35%), **Defect Diversity Focus** (35%), and **SPC Process Stability** (30%) with visual progress bars.
-
-### 17. Cumulative Defect Tracker & Target Curve
+### 16. Cumulative Defect Tracker & Target Curve
 - Running cumulative defect chart comparing actual defect accumulation against custom factory targets over the period.
 
-### 18. Defect Velocity & Acceleration Analysis
+### 17. Defect Velocity & Acceleration Analysis
 - Tracks the velocity (period-over-period change rate) and acceleration (second derivative) to detect whether quality issues are accelerating or decelerating.
 
-### 19. Defect → Machine Flow (Sankey Diagram)
+### 18. Defect → Machine Flow (Sankey Diagram)
 - Interactive flow diagram on the **Machine Analysis** workspace mapping defect types to originating machines with flow-width proportional to defect volume.
 
-### 20. Saved Filter Presets & Bookmarks
+### 19. Saved Filter Presets & Bookmarks
 - Save named filter configurations to browser local storage for instant 1-click recall of frequent investigation filters.
 
-### 21. Multi-File Excel Merge
+### 20. Multi-File Excel Merge
 - Merge multiple Excel workbooks simultaneously via the `⊕ Merge Files` action, automatically deduplicating records across all files upon ingestion.
 
-### 22. Data Annotations & Notes
+### 21. Data Annotations & Notes
 - Attach persistent engineer notes and quality memos to specific barcodes/records, stored locally in IndexedDB/localStorage.
 
-### 23. Executive Print / PDF Quality Brief
+### 22. Executive Print / PDF Quality Brief
 - Click the **⎙ Print Brief** button in the header (or press `Ctrl+P`) to generate an executive-ready 2-column quality summary.
 - Print stylesheets (`@media print`) hide navigation sidebars, controls, and pagination, producing an immaculate physical or PDF briefing.
 
-### 24. PWA & Offline Installation
+### 23. PWA & Offline Installation
 - Fully installable as a standalone desktop application via Chrome/Edge ("Install App").
 - Powered by `sw.js` Service Worker and IndexedDB (`CTDefectDB`), enabling 100% offline usage with zero internet dependency once loaded.
 
-### 25. Automated GitHub Pages CI/CD
+### 24. Automated GitHub Pages CI/CD
 - GitHub Actions workflow (`.github/workflows/deploy.yml`) automatically builds and deploys the dashboard to GitHub Pages on every push to `main`.
 
 ### Unified Workspaces & Navigation

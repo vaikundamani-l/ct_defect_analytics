@@ -64,7 +64,8 @@ const state = {
   visibleColumns: initialVisibleCols,
   cumulativeInstance: null,
   velocityInstance: null,
-  activeDetailRecord: null
+  activeDetailRecord: null,
+  dismissedOffenders: new Set()
 };
 window.state = state;
 
@@ -164,6 +165,7 @@ function reset() {
   $('search').value = '';
   state.tablePage = 1;
   state.dedupe = true;
+  state.dismissedOffenders = new Set();
   if (state.loaded) defaultDateFocus();
   renderSlicers();
   render();
@@ -966,13 +968,11 @@ function render() {
 
   // Page 0 Visibility (Dashboard Overview)
   const isP0 = state.loaded && state.page === 0;
+  if ($('summaryParetoSection')) $('summaryParetoSection').hidden = !isP0;
   if ($('advancedVisuals')) $('advancedVisuals').hidden = !isP0;
-  if ($('weeklySummarySection')) $('weeklySummarySection').hidden = !isP0;
   if ($('machineIntelSection')) $('machineIntelSection').hidden = !isP0;
-  if ($('paretoProgressSection')) $('paretoProgressSection').hidden = !isP0;
   if ($('cumulativeSection')) $('cumulativeSection').hidden = !isP0;
   if ($('velocitySection')) $('velocitySection').hidden = !isP0;
-  if ($('scorecardSection')) $('scorecardSection').hidden = !isP0;
 
   // Page 1 Visibility (Machine Analysis)
   const isP1 = state.loaded && state.page === 1;
@@ -988,7 +988,6 @@ function render() {
     renderRepeatOffenders();
     renderMachineHealth();
     renderParetoProgress();
-    renderQualityScorecard();
     renderCumulativeChart();
     renderVelocityChart();
   }
@@ -1191,16 +1190,24 @@ function renderWeeklySummary() {
 // Repeat Offender Machine Detection (Feature #2)
 function renderRepeatOffenders() {
   if (!state.loaded || state.page !== 0) return;
-  const offenders = E.repeatOffenders(state.filtered, 'TBMMachine ID', 6);
-  if (!offenders || !offenders.length) {
-    $('repeatOffenderBody').innerHTML = '<p class="muted">No repeat offender machine concentrations detected above average.</p>';
+  if (!state.dismissedOffenders) state.dismissedOffenders = new Set();
+  const rawOffenders = E.repeatOffenders(state.filtered, 'TBMMachine ID', 15);
+  const offenders = rawOffenders.filter(o => !state.dismissedOffenders.has(o.machine + '\u0000' + o.defect)).slice(0, 6);
+  if (!offenders.length) {
+    const hiddenCount = state.dismissedOffenders.size;
+    const msg = hiddenCount > 0
+      ? `All repeat offender machines reviewed and removed (${hiddenCount} hidden). <button id="restoreOffendersBtn" style="font-size:11px;padding:3px 8px;margin-left:8px;cursor:pointer;background:var(--primary);color:#fff;border:none;border-radius:4px;">Restore list</button>`
+      : 'No repeat offender machine concentrations detected above average.';
+    $('repeatOffenderBody').innerHTML = `<p class="muted">${msg}</p>`;
+    const btn = $('restoreOffendersBtn');
+    if (btn) btn.onclick = () => { state.dismissedOffenders.clear(); renderRepeatOffenders(); };
     return;
   }
   let html = `<table class="offender-table"><thead><tr><th>Machine</th><th>Defect Name</th><th>Count</th><th>Avg/Machine</th><th>Concentration</th><th>Risk Level</th></tr></thead><tbody>`;
   offenders.forEach(o => {
     const risk = o.ratio >= 2.5 ? 'critical' : o.ratio >= 1.7 ? 'warning' : 'watch';
     const riskLabel = o.ratio >= 2.5 ? 'CRITICAL' : o.ratio >= 1.7 ? 'WARNING' : 'WATCH';
-    html += `<tr style="cursor:pointer;" data-machine="${escapeHTML(o.machine)}" data-defect="${escapeHTML(o.defect)}" title="Click to isolate ${escapeHTML(o.machine)} and ${escapeHTML(o.defect)}">
+    html += `<tr style="cursor:pointer;" data-machine="${escapeHTML(o.machine)}" data-defect="${escapeHTML(o.defect)}" title="Click to filter by ${escapeHTML(o.machine)} and ${escapeHTML(o.defect)} (removes from list)">
       <td><strong>${escapeHTML(o.machine)}</strong></td>
       <td>${escapeHTML(o.defect)}</td>
       <td><strong>${fmt(o.count)}</strong></td>
@@ -1217,8 +1224,11 @@ if ($('repeatOffenderBody')) {
   $('repeatOffenderBody').onclick = e => {
     const tr = e.target.closest('tr[data-machine]');
     if (tr) {
-      state.charts['TBMMachine ID'] = new Set([tr.dataset.machine]);
-      state.charts['Defect Name'] = new Set([tr.dataset.defect]);
+      const m = tr.dataset.machine, d = tr.dataset.defect;
+      if (!state.dismissedOffenders) state.dismissedOffenders = new Set();
+      state.dismissedOffenders.add(m + '\u0000' + d);
+      state.charts['TBMMachine ID'] = new Set([m]);
+      state.charts['Defect Name'] = new Set([d]);
       render();
     }
   };
@@ -1294,40 +1304,6 @@ if ($('paretoProgressBody')) {
       render();
     }
   };
-}
-
-// Factory Quality Scorecard (Feature #15)
-function renderQualityScorecard() {
-  if (!state.loaded || state.page !== 0) return;
-  const sc = E.qualityScorecard(state.filtered);
-  if (!sc) return;
-  const gradeColor = sc.score >= 80 ? '#10b981' : sc.score >= 60 ? '#3b82f6' : sc.score >= 40 ? '#f59e0b' : '#ef4444';
-  const html = `<div class="scorecard-wrap">
-    <div class="scorecard-main">
-      <div class="scorecard-value" style="color:${gradeColor};">${sc.score}</div>
-      <div class="scorecard-grade" style="color:${gradeColor};">Grade ${sc.grade}</div>
-      <p style="font-size:11px;color:var(--muted);margin-top:4px;">Factory Quality Index</p>
-    </div>
-    <div class="scorecard-factors">
-      <div class="factor-row">
-        <span class="factor-label">Machine Spread:</span>
-        <div class="factor-bar"><div class="factor-fill" style="width:${sc.factors.machineSpread}%;background:#3b82f6;"></div></div>
-        <span class="factor-value">${sc.factors.machineSpread}%</span>
-      </div>
-      <div class="factor-row">
-        <span class="factor-label">Defect Focus:</span>
-        <div class="factor-bar"><div class="factor-fill" style="width:${sc.factors.defectFocus}%;background:#10b981;"></div></div>
-        <span class="factor-value">${sc.factors.defectFocus}%</span>
-      </div>
-      <div class="factor-row">
-        <span class="factor-label">Process Stability:</span>
-        <div class="factor-bar"><div class="factor-fill" style="width:${sc.factors.processStability}%;background:#8b5cf6;"></div></div>
-        <span class="factor-value">${sc.factors.processStability}%</span>
-      </div>
-      <p style="font-size:12px;margin:6px 0 0;color:var(--muted);">${escapeHTML(sc.summary)}</p>
-    </div>
-  </div>`;
-  $('scorecardBody').innerHTML = html;
 }
 
 // Cumulative Defect Tracker (Feature #13)

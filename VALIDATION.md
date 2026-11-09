@@ -51,10 +51,11 @@ Passed JavaScript syntax checks and DOM integration tests using the actual workb
 - Comprehensive Advanced Quality Suite verified on local 14,627 records:
   - KPI Trend Badges (Period-over-Period % change) verified: renders dynamic ↑/↓ badges comparing current period against previous.
   - Automated Quality Period Summary verified: synthesizes key events, top defects, and SPC stability highlights.
-  - Repeat Offender Machine Detection verified: flags machinery exceeding average concentration with CRITICAL/WARNING/WATCH badges.
+  - Repeat Offender Machine Detection verified: flags machinery exceeding average concentration with CRITICAL/WARNING/WATCH badges; clicking an offender isolates the machine and defect and automatically dismisses/removes it from the active offender list (with restore option).
   - Machine Health Scoring verified: composite quality score (0–100) and letter grades (A–F) with trend indicators.
-  - Pareto Progress Tracker verified: tracks vital-few top 5 defect trajectories across periods.
-  - Factory Quality Scorecard verified: composite index combining Machine Spread Entropy, Defect Diversity Focus, and Process Stability.
+  - Quality Period Summary & Pareto Progress Tracker Layout verified: combined into a side-by-side single row grid layout (`#summaryParetoSection`).
+  - Report Filters Width Ratio verified: Year filter tile sized to 20% and Month filter tile sized to 70% of the report filters container width.
+  - Factory Quality Scorecard removed completely from DOM and runtime execution per user specification.
   - Cumulative Defect Tracker verified: running cumulative defect total vs target curves.
   - Defect Velocity & Acceleration Chart verified: first and second derivative of defect counts over time.
   - Defect → Machine Flow (Sankey Diagram) verified: SVG flow paths connecting defect types to production machinery.
