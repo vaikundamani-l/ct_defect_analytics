@@ -311,6 +311,39 @@ function changeSlicer(f) {
 }
 
 function selectChart(field, value, multi) {
+  if (field === '_month') {
+    const s = state.slicers._month || new Set();
+    if (s.has(value)) s.delete(value);
+    else {
+      if (!multi) s.clear();
+      s.add(value);
+    }
+    state.slicers._month = s;
+    state.charts._month = new Set();
+    state.charts._day = new Set();
+    state.tablePage = 1;
+    renderSlicers();
+    render();
+    return;
+  }
+  if (field === '_year') {
+    const s = state.slicers._year || new Set();
+    if (s.has(value)) s.delete(value);
+    else {
+      if (!multi) s.clear();
+      s.add(value);
+    }
+    state.slicers._year = s;
+    state.charts._year = new Set();
+    const allowed = E.months(state.rows, state.slicers._year);
+    state.slicers._month = new Set([...(state.slicers._month || [])].filter(m => allowed.includes(m)));
+    state.charts._month = new Set();
+    state.charts._day = new Set();
+    state.tablePage = 1;
+    renderSlicers();
+    render();
+    return;
+  }
   const old = state.charts[field] || new Set();
   if (old.has(value)) old.delete(value);
   else {
@@ -318,7 +351,6 @@ function selectChart(field, value, multi) {
     old.add(value);
   }
   state.charts[field] = old;
-  if (field === '_month') state.charts._day = new Set();
   state.tablePage = 1;
   render();
 }
@@ -408,6 +440,18 @@ $('charts').onclick = async e => {
       const c = configs[b.dataset.clear];
       delete state.charts[c.field];
       if (c.split) delete state.charts[c.split];
+      if (c.field === '_month') {
+        state.slicers._month = new Set();
+        state.charts._day = new Set();
+        renderSlicers();
+      }
+      if (c.field === '_year') {
+        state.slicers._year = new Set();
+        state.slicers._month = new Set();
+        state.charts._month = new Set();
+        state.charts._day = new Set();
+        renderSlicers();
+      }
       render();
     }
     if (b.dataset.full) {
@@ -638,8 +682,11 @@ function renderCharts() {
     const isPolar = type === 'polarArea';
     const isPareto = type === 'pareto';
     const horizontal = type === 'horizontal';
+    const chartSlicers = { ...state.slicers };
+    if (c.field === '_month') chartSlicers._month = new Set();
+    if (c.field === '_year') chartSlicers._year = new Set();
     const chartFilters = { ...state.charts, [c.field]: new Set() };
-    let chartRows = E.filter(state.rows, state.slicers, chartFilters, state.query, state.dedupe);
+    let chartRows = E.filter(state.rows, chartSlicers, chartFilters, state.query, state.dedupe);
     const hasYear = (state.slicers._year?.size || state.charts._year?.size);
     const hasMonth = (state.slicers._month?.size || state.charts._month?.size);
     if (id === 'monthDrill' && !hasYear) chartRows = [];
@@ -650,7 +697,9 @@ function renderCharts() {
     const top = state.tops[id] || 10;
     if (c.top && top !== 'All') pairs = pairs.slice(0, +top);
     const keys = pairs.map(p => p[0]);
-    const selected = state.charts[c.field] || new Set();
+    const selected = (c.field === '_month' || c.field === '_year')
+      ? (state.slicers[c.field]?.size ? state.slicers[c.field] : (state.charts[c.field] || new Set()))
+      : (state.charts[c.field] || new Set());
     let series = [];
     let datasets;
     let spcStats = null;

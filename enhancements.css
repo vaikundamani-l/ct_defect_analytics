@@ -449,11 +449,13 @@ header button.upload:not(.primary):hover {
 }
 
 /* ── Period Summary & Pareto Progress (Single-Row Grid) ── */
-#summaryParetoSection {
+#summaryParetoSection,
+#machineIntelSection {
   margin-bottom: 20px;
 }
 
-#summaryParetoSection .adv-card {
+#summaryParetoSection .adv-card,
+#machineIntelSection .adv-card {
   height: 100%;
   display: flex;
   flex-direction: column;

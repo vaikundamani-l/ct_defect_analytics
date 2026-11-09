@@ -121,31 +121,6 @@
       </div>
     </dialog>
 
-    <!-- Weekly Summary Section (Dashboard Overview page 0) -->
-    <!-- Quality Period Summary & Pareto Progress Tracker in single row -->
-    <section id="summaryParetoSection" hidden>
-      <div class="adv-grid">
-        <article class="card adv-card" id="card-weeklySummary">
-          <div class="chart-head">
-            <div>
-              <h3>📋 Quality Period Summary</h3>
-              <p>Auto-generated key findings and highlights for the selected filters</p>
-            </div>
-          </div>
-          <div id="weeklySummaryBody" class="weekly-summary-content"></div>
-        </article>
-        <article class="card adv-card" id="card-paretoProgress">
-          <div class="chart-head">
-            <div>
-              <h3>📊 Pareto Progress Tracker</h3>
-              <p>Are the "vital few" defects from last period improving?</p>
-            </div>
-          </div>
-          <div id="paretoProgressBody"></div>
-        </article>
-      </div>
-    </section>
-
     <!-- Advanced Visuals -->
     <section id="advancedVisuals" hidden>
       <div class="adv-grid">
@@ -169,36 +144,6 @@
             </div>
           </div>
           <div id="tireDiagramBody" class="tire-diagram-content"></div>
-        </article>
-      </div>
-    </section>
-
-    <!-- Repeat Offender & Machine Health Section (Dashboard Overview page 0) -->
-    <section id="machineIntelSection" hidden>
-      <div class="adv-grid">
-        <article class="card adv-card">
-          <div class="chart-head">
-            <div>
-              <h3>🔴 Repeat Offender Machines</h3>
-              <p>Machines consistently producing the same defect above average</p>
-            </div>
-          </div>
-          <div id="repeatOffenderBody"></div>
-        </article>
-        <article class="card adv-card">
-          <div class="chart-head">
-            <div>
-              <h3>🏥 Machine Health Scores</h3>
-              <p>Composite quality score per machine (frequency, variety, trend)</p>
-            </div>
-            <div class="chart-tools">
-              <select id="healthMachineType" aria-label="Machine type for health scores">
-                <option value="TBMMachine ID">TBM Machine</option>
-                <option value="Curing Machine ID">Curing Machine</option>
-              </select>
-            </div>
-          </div>
-          <div id="machineHealthBody"></div>
         </article>
       </div>
     </section>
@@ -273,6 +218,60 @@
         </div>
         <div class="chart-scroll"><div class="canvas-wrap" style="height:280px;"><canvas id="canvas-velocity"></canvas></div></div>
       </article>
+    </section>
+
+    <!-- Executive Quality Intelligence & Pareto Progress (below all charts, above table) -->
+    <section id="summaryParetoSection" hidden>
+      <div class="adv-grid">
+        <article class="card adv-card" id="card-weeklySummary">
+          <div class="chart-head">
+            <div>
+              <h3>📋 Quality Period Summary</h3>
+              <p>Auto-generated key findings and highlights for the selected filters</p>
+            </div>
+          </div>
+          <div id="weeklySummaryBody" class="weekly-summary-content"></div>
+        </article>
+        <article class="card adv-card" id="card-paretoProgress">
+          <div class="chart-head">
+            <div>
+              <h3>📊 Pareto Progress Tracker</h3>
+              <p>Are the "vital few" defects from last period improving?</p>
+            </div>
+          </div>
+          <div id="paretoProgressBody"></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Repeat Offender & Machine Health Section (below all charts, above table) -->
+    <section id="machineIntelSection" hidden>
+      <div class="adv-grid">
+        <article class="card adv-card">
+          <div class="chart-head">
+            <div>
+              <h3>🚨 Repeat Offender Machines</h3>
+              <p>Machines consistently producing the same defect above average</p>
+            </div>
+          </div>
+          <div id="repeatOffenderBody"></div>
+        </article>
+        <article class="card adv-card">
+          <div class="chart-head">
+            <div>
+              <h3>⚙️ Machine Health Scores</h3>
+              <p>Composite quality score per machine (frequency, variety, trend)</p>
+            </div>
+            <div class="chart-tools">
+              <select id="healthMachineType" aria-label="Machine type for health scores">
+                <option value="TBMMachine ID">TBM Machine</option>
+                <option value="Curing Machine ID">Curing Machine</option>
+              </select>
+            </div>
+          </div>
+          <div id="machineHealthBody"></div>
+        </article>
+      </div>
     </section>
 
     <!-- Data Explorer Table -->
